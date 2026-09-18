@@ -10,6 +10,8 @@ import { cmdEstimate } from "../src/commands/estimate.ts";
 import { cmdGenerate } from "../src/commands/generate.ts";
 import { cmdScript } from "../src/commands/script.ts";
 import { cmdSearchBroll } from "../src/commands/search-broll.ts";
+import { billedUsd } from "../src/lib/budget.ts";
+import { latestJob, listLedger, openDb } from "../src/lib/db.ts";
 import { findProjectRoot } from "../src/lib/paths.ts";
 import { EXIT } from "../src/types.ts";
 
@@ -30,6 +32,15 @@ test("confirm gate, then dry generate + assemble", () => {
   assert.equal(cmdEstimate({ client, seconds: 5, backend: "fal-ai", dataDir }), 0);
   assert.equal(cmdGenerate({ client, seconds: 5, backend: "fal", dataDir }), EXIT.needsConfirm);
   assert.equal(cmdGenerate({ client, seconds: 5, backend: "fal-ai", confirm: true, dataDir }), 0);
+
+  const { db } = openDb(dataDir);
+  const falJob = latestJob(db, client);
+  assert.ok(falJob);
+  assert.equal(falJob.backend, "fal-ai");
+  assert.equal(falJob.actualCostUsd, 0);
+  assert.equal(falJob.dryRun, true);
+  assert.equal(billedUsd(db, client), 0);
+  assert.ok(listLedger(db, client).some((e) => e.kind === "estimate" && e.note.startsWith("fal-ai")));
 
   assert.equal(cmdAssemble({ client, dataDir }), 0);
   assert.equal(cmdCost({ client, dataDir }), 0);

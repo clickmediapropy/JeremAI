@@ -41,6 +41,7 @@ export function parseBackend(raw: string | undefined, fallback?: BackendId): Bac
     throw new Error(`Backend required. Known: ${BACKENDS.join(", ")} (alias: fal).`);
   }
   const key = raw.trim().toLowerCase();
+  if ((BACKENDS as readonly string[]).includes(key)) return key as BackendId;
   const id = BACKEND_ALIASES[key];
   if (!id) {
     throw new Error(`Unknown backend "${raw}". Known: ${BACKENDS.join(", ")} (alias: fal).`);
@@ -85,6 +86,10 @@ export function quote(backend: BackendId, seconds: number, resolution: Resolutio
         ? `fal is the fast closed-API alternative (not OSS/self-host). Default H3 Max Turbo 5s: $0.20 @768P / $0.40 @1080p-mapped-2K. Never calls fal.`
         : `FAL_VIDEO_MODEL=${model} is not in the stub catalog; quoting H3 Max Turbo rates. Re-check the fal model page before any live spend. Adapter never calls fal.`,
     };
+  }
+  if (backend !== "runpod-h3") {
+    const _exhaustive: never = backend;
+    throw new Error(`Unhandled backend: ${_exhaustive}`);
   }
   const perSecond = RUNPOD_H3_PER_5S / 5;
   return {
