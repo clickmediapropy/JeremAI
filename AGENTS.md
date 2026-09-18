@@ -20,11 +20,26 @@ jeremai cost --client <id>
 
 `pnpm demo` runs that path on `aether-wellness`.
 
+## Skills
+Read and follow:
+
+- `skills/script.md`
+- `skills/compliance-lint.md`
+- `skills/storyboard.md`
+- `skills/assemble.md`
+- `skills/ship.md`
+
 ## Hard rules
 1. Search the SQLite index (Drive/R2/local) **before** generate.
-2. Claims allowlist is law.
+2. Claims allowlist is law. Do not “improve” copy with disease or outcome language.
 3. `generate` without `--confirm` is a failure, not a nudge.
 4. Soft-warn 80% of `budget_cap_usd`. Hard-stop 100%.
-5. Both video backends are **dry-run stubs**. Do not rent GPUs. Do not call MiniMax paygo.
+5. Both video backends are **dry-run stubs**. Do not rent GPUs. Do not call MiniMax paygo. Cost pitch: self-host H3 on RunPod **~$0.17 / ~5s** (hypothesis) vs API ceiling **$0.08/s @768P / $0.13/s @2K**.
 6. Knowledge = `knowledge/clients/<id>/` (HQ by Indigo stand-in). Ignore indigohq.com.
 7. Never add a web UI. Never wire media-buying.
+
+## Client config
+`knowledge/clients/<id>/config.yaml` — cap, claims path, Drive/R2 URIs, preferred backend.
+
+## When stuck
+Prefer reuse over regen. Prefer refuse over spend. Prefer a failing lint over a shippable lie.
