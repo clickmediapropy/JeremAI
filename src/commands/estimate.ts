@@ -57,6 +57,8 @@ export function cmdEstimate(opts: {
   } else if (estimate.warn80) {
     warn("Soft warn — projected spend ≥ 80% of client cap.");
   }
-  info("Next: jeremai generate --client " + client.id + " --confirm   (still dry-run by default)");
+  info(
+    `Next: jeremai generate --client ${client.id} --backend ${estimate.backend} --confirm   (still dry-run by default)`,
+  );
   return 0;
 }

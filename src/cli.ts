@@ -148,7 +148,7 @@ dataDirOption(
 dataDirOption(
   program
     .command("demo")
-    .description("One-command dry-run: brief → script → estimate → refused generate → confirmed generate → assemble → cost")
+    .description("One-command dry-run: brief → script → estimate → refuse/confirm (runpod + fal) → assemble → cost")
     .option("--client <id>", "Client id", "aether-wellness")
     .action((opts) => {
       process.exitCode = cmdDemo(opts);
