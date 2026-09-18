@@ -2,10 +2,12 @@ id: aether-wellness
 name: Aether Wellness
 product: Aether Daily Mineral
 vertical: general-wellness
+# Paid-test style cap — hard stop at 100%, soft warn at 80%.
 budget_cap_usd: 25.00
 claims_policy: claims-allowlist.yaml
 brand: brand.md
 policies: policies.md
+# Drive = client vault (source of truth). R2 = agent working set / cheap egress.
 drive_uri: gdrive://aether-wellness/Creative/Footage
 r2_uri: r2://aether-wellness-cache/working
 preferred_backend: runpod-h3
