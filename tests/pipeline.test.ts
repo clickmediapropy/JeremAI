@@ -26,6 +26,11 @@ test("confirm gate, then dry generate + assemble", () => {
   assert.equal(cmdGenerate({ client, seconds: 5, dataDir }), EXIT.needsConfirm);
 
   assert.equal(cmdGenerate({ client, seconds: 5, confirm: true, dataDir }), 0);
+
+  assert.equal(cmdEstimate({ client, seconds: 5, backend: "fal-ai", dataDir }), 0);
+  assert.equal(cmdGenerate({ client, seconds: 5, backend: "fal", dataDir }), EXIT.needsConfirm);
+  assert.equal(cmdGenerate({ client, seconds: 5, backend: "fal-ai", confirm: true, dataDir }), 0);
+
   assert.equal(cmdAssemble({ client, dataDir }), 0);
   assert.equal(cmdCost({ client, dataDir }), 0);
 });
