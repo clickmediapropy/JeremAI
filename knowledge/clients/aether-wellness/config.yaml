@@ -1,0 +1,12 @@
+id: aether-wellness
+name: Aether Wellness
+product: Aether Daily Mineral
+vertical: general-wellness
+budget_cap_usd: 25.00
+claims_policy: claims-allowlist.yaml
+brand: brand.md
+policies: policies.md
+drive_uri: gdrive://aether-wellness/Creative/Footage
+r2_uri: r2://aether-wellness-cache/working
+preferred_backend: runpod-h3
+retries_buffer: 1.2

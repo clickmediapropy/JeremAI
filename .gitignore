@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+*.tsbuildinfo
+
+# Local runtime / ledgers / generated media
+.data/
+out/
+tmp/
+*.db
+*.db-wal
+*.db-shm
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.log
+coverage/
+
+# Agent scratch
+uploads/
+.cursor/
