@@ -14,6 +14,8 @@ After `brief` is ingested. Before `estimate` / `generate`.
 - Treat the FDA disclaimer as permission to make a stronger claim.
 - Approve your own script without a human when this is a real client.
 
+Copy craft: `skills/copywriting.md`. Lint rules: `skills/compliance-lint.md`.
+
 ## Command
 ```
 jeremai script --client aether-wellness

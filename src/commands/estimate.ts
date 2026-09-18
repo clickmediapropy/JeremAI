@@ -1,10 +1,10 @@
-import { describeBackends } from "../lib/backends/registry.ts";
+import { backendFlagHelp, describeBackends, parseBackend } from "../lib/backends/registry.ts";
 import { buildEstimate } from "../lib/budget.ts";
 import { loadClient } from "../lib/config.ts";
 import { openDb } from "../lib/db.ts";
-import { hr, info, kv, money, pct, warn } from "../lib/print.ts";
+import { err, hr, info, kv, money, pct, warn } from "../lib/print.ts";
 import { seedClientLibrary } from "../lib/seed.ts";
-import type { BackendId, Resolution } from "../types.ts";
+import { EXIT, type Resolution } from "../types.ts";
 
 export function cmdEstimate(opts: {
   client: string;
@@ -17,9 +17,17 @@ export function cmdEstimate(opts: {
   const { db } = openDb(opts.dataDir);
   seedClientLibrary(db, client.id);
   const seconds = opts.seconds ?? 5;
+  let backend = client.preferredBackend;
+  try {
+    backend = parseBackend(opts.backend, client.preferredBackend);
+  } catch (e) {
+    err(e instanceof Error ? e.message : String(e));
+    info(backendFlagHelp());
+    return EXIT.usage;
+  }
   const estimate = buildEstimate(db, client, {
     seconds,
-    backend: (opts.backend as BackendId | undefined) ?? client.preferredBackend,
+    backend,
     resolution: (opts.resolution as Resolution | undefined) ?? "768P",
   });
 

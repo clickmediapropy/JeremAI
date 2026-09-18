@@ -22,7 +22,7 @@ export function cmdDemo(opts: { client?: string; dataDir?: string }): number {
   const brief = join(root, "fixtures", "briefs", "aether-morning.md");
 
   hr("JeremAI dry-run demo");
-  info("Pipeline: brief → search-broll → script --approve → estimate → generate (refuse) → generate --confirm → assemble → cost");
+  info("Pipeline: brief → search-broll → script --approve → estimate → generate (refuse) → confirm → fal path → assemble → cost");
   info(`client=${client}  data=${dataDir}`);
   console.log("");
 
@@ -33,6 +33,16 @@ export function cmdDemo(opts: { client?: string; dataDir?: string }): number {
     { name: "estimate", args: ["estimate", "--client", client, "--seconds", "5", "--backend", "runpod-h3"] },
     { name: "generate (no confirm)", args: ["generate", "--client", client, "--seconds", "5"], expect: 2 },
     { name: "generate --confirm", args: ["generate", "--client", client, "--seconds", "5", "--confirm"] },
+    { name: "estimate fal-ai", args: ["estimate", "--client", client, "--seconds", "5", "--backend", "fal"] },
+    {
+      name: "generate fal (no confirm)",
+      args: ["generate", "--client", client, "--seconds", "5", "--backend", "fal-ai"],
+      expect: 2,
+    },
+    {
+      name: "generate fal --confirm",
+      args: ["generate", "--client", client, "--seconds", "5", "--backend", "fal-ai", "--confirm"],
+    },
     { name: "assemble", args: ["assemble", "--client", client] },
     { name: "cost", args: ["cost", "--client", client] },
   ];
@@ -49,7 +59,7 @@ export function cmdDemo(opts: { client?: string; dataDir?: string }): number {
     console.log("");
   }
 
-  ok("End-to-end dry-run complete. No MiniMax call. No RunPod GPU. Ledger actuals = $0.");
-  info("Compare: self-host hypothesis $0.17/5s vs API ceiling $0.40/5s @768P / $0.65 @2K.");
+  ok("End-to-end dry-run complete. No MiniMax / fal / RunPod spend. Ledger actuals = $0.");
+  info("Compare: self-host $0.17/5s vs fal H3 Max Turbo $0.20/5s vs MiniMax API ceiling $0.40/5s @768P.");
   return 0;
 }
