@@ -1,0 +1,42 @@
+# Seed index — pretend Drive + R2 hashes. Search these BEFORE generate.
+assets:
+  - id: broll_kitchen_am
+    title: Kitchen window morning light
+    description: Soft AM window, ceramic mug, hands at the counter. No product claims on screen.
+    tags: [kitchen, morning, ritual, window, hook, lifestyle]
+    duration_s: 6
+    claim_safe: true
+    uri: gdrive://aether-wellness/Creative/Footage/kitchen-am.mp4
+    source: drive
+  - id: broll_scoop
+    title: Scoop into glass
+    description: Matte jar, mineral scoop, water. Current SKU label.
+    tags: [product, scoop, jar, water, kitchen]
+    duration_s: 4
+    claim_safe: true
+    uri: r2://aether-wellness-cache/working/scoop-glass.mp4
+    source: r2
+  - id: broll_walk
+    title: Walk out the door
+    description: Shoes, keys, daylight stoop. End-of-ritual cutaway.
+    tags: [walk, outdoor, stoop, cta, lifestyle]
+    duration_s: 8
+    claim_safe: true
+    uri: gdrive://aether-wellness/Creative/Footage/stoop-walk.mp4
+    source: drive
+  - id: broll_talking_head
+    title: Talking head kitchen
+    description: Creator mid-shot, natural audio room. Claim-safe if VO stays on allowlist.
+    tags: [ugc, talking-head, kitchen, hook]
+    duration_s: 12
+    claim_safe: true
+    uri: gdrive://aether-wellness/Creative/Footage/th-kitchen.mp4
+    source: drive
+  - id: broll_scale
+    title: Bathroom scale before/after wall
+    description: LEGACY. Weight framing. Do not use in paid-test cuts.
+    tags: [scale, before-after, bathroom, weight]
+    duration_s: 5
+    claim_safe: false
+    uri: gdrive://aether-wellness/Creative/Footage/_legacy/scale.mp4
+    source: drive
