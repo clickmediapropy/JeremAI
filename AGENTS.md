@@ -2,6 +2,8 @@
 
 You are driving an **ops CLI**, not a web app. Nutra ads. Confirm-before-spend. Never auto-publish.
 
+**New here?** Read `skills/userguide.md` first. Then pick a step skill below.
+
 ## Product shape
 Human brief (10–15%) → agent script / B-roll reuse / generate / assemble (~90%) → human editor polish (~10%) → **human** publish.
 
@@ -24,6 +26,7 @@ jeremai cost --client <id>
 
 | Skill | Use |
 | --- | --- |
+| **`skills/userguide.md`** | **Start here — full walkthrough for buyers, editors, agents** |
 | `skills/script.md` | Draft + approve |
 | `skills/copywriting.md` | Nutra hooks, structure/function, beat map |
 | `skills/compliance-lint.md` | Deterministic claims lint |
