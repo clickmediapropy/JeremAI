@@ -15,3 +15,5 @@
 | 12–15s | product + disclaimer super | editor |
 
 Paid-test metric: **≥40% of final seconds from reused library**.
+
+See `skills/broll-reuse.md` before you storyboard a generated shot. Backend choice (`runpod-h3` vs `fal-ai`) happens after the shot list, not before.

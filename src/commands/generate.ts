@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { backendFlagHelp, parseBackend } from "../lib/backends/registry.ts";
 import { budgetGate, buildEstimate } from "../lib/budget.ts";
 import { loadClaimsPolicy, loadClient } from "../lib/config.ts";
 import {
@@ -15,7 +16,7 @@ import { nowIso, sha256Short, shortId } from "../lib/ids.ts";
 import { err, hr, info, kv, money, ok, warn } from "../lib/print.ts";
 import { searchBroll } from "../lib/search.ts";
 import { seedClientLibrary } from "../lib/seed.ts";
-import { EXIT, type BackendId, type Resolution } from "../types.ts";
+import { EXIT, type Resolution } from "../types.ts";
 
 export function cmdGenerate(opts: {
   client: string;
@@ -59,9 +60,17 @@ export function cmdGenerate(opts: {
   }
 
   const seconds = opts.seconds ?? 5;
+  let backend = client.preferredBackend;
+  try {
+    backend = parseBackend(opts.backend, client.preferredBackend);
+  } catch (e) {
+    err(e instanceof Error ? e.message : String(e));
+    info(backendFlagHelp());
+    return EXIT.usage;
+  }
   const estimate = buildEstimate(db, client, {
     seconds,
-    backend: (opts.backend as BackendId | undefined) ?? client.preferredBackend,
+    backend,
     resolution: (opts.resolution as Resolution | undefined) ?? "768P",
   });
   const gate = budgetGate(estimate);
@@ -77,7 +86,7 @@ export function cmdGenerate(opts: {
     .filter((h) => h.asset.claimSafe)
     .slice(0, 3);
 
-  hr("generate  (confirmed · dry-run stub · no GPU · no MiniMax call)");
+  hr("generate  (confirmed · dry-run stub · no GPU · no paid API)");
   kv("script", script.id);
   kv("disclaimer present", script.body.includes(policy.disclaimer) ? "yes" : "NO");
   kv("backend", estimate.model);
@@ -98,7 +107,12 @@ export function cmdGenerate(opts: {
     outPath,
     seconds,
     label: `DRY RUN ${estimate.backend} ${seconds}s`,
-    color: estimate.backend === "runpod-h3" ? "0x14261c" : "0x1a2030",
+    color:
+      estimate.backend === "runpod-h3"
+        ? "0x14261c"
+        : estimate.backend === "fal-ai"
+          ? "0x2a1830"
+          : "0x1a2030",
   });
 
   const dryRun = !opts.simulateSpend;
@@ -138,7 +152,7 @@ export function cmdGenerate(opts: {
     kind: "actual",
     amountUsd: actual,
     note: dryRun
-      ? "dry-run stub — $0 billed. Adapter did not call MiniMax or RunPod."
+      ? "dry-run stub — $0 billed. Adapter did not call MiniMax, RunPod, or fal."
       : "SIMULATED live debit for meter rehearsal (still no cloud spend).",
     dryRun,
     createdAt: at,

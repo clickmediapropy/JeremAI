@@ -1,4 +1,4 @@
-export const BACKENDS = ["runpod-h3", "minimax-h3-api"] as const;
+export const BACKENDS = ["runpod-h3", "minimax-h3-api", "fal-ai"] as const;
 export type BackendId = (typeof BACKENDS)[number];
 
 export const RESOLUTIONS = ["768P", "2K"] as const;

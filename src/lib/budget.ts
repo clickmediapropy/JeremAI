@@ -1,6 +1,6 @@
 import type { DatabaseSync } from "node:sqlite";
-import type { ClientConfig, CostEstimate } from "../types.ts";
-import { quote } from "./backends/registry.ts";
+import type { BackendId, ClientConfig, CostEstimate } from "../types.ts";
+import { parseBackend, quote } from "./backends/registry.ts";
 import { listLedger } from "./db.ts";
 
 export function billedUsd(db: DatabaseSync, clientId: string): number {
@@ -12,9 +12,9 @@ export function billedUsd(db: DatabaseSync, clientId: string): number {
 export function buildEstimate(
   db: DatabaseSync,
   client: ClientConfig,
-  opts: { backend?: ClientConfig["preferredBackend"]; seconds: number; resolution?: "768P" | "2K" },
+  opts: { backend?: string; seconds: number; resolution?: "768P" | "2K" },
 ): CostEstimate {
-  const backend = opts.backend ?? client.preferredBackend;
+  const backend: BackendId = parseBackend(opts.backend, client.preferredBackend);
   const q = quote(backend, opts.seconds, opts.resolution ?? "768P");
   const estimatedCostUsd = round4(q.baseCostUsd * client.retriesBuffer);
   const usedUsd = billedUsd(db, client.id);

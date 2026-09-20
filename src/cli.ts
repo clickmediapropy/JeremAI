@@ -100,7 +100,7 @@ dataDirOption(
     .description("Print model, seconds, retries buffer, and remaining client budget (no spend)")
     .requiredOption("--client <id>", "Client id")
     .option("--seconds <n>", "Clip length", (v) => Number(v), 5)
-    .option("--backend <id>", "runpod-h3 | minimax-h3-api")
+    .option("--backend <id>", "runpod-h3 | minimax-h3-api | fal-ai (alias: fal)")
     .option("--resolution <res>", "768P | 2K", "768P")
     .action((opts) => {
       process.exitCode = cmdEstimate(opts);
@@ -115,7 +115,7 @@ dataDirOption(
     .option("--confirm", "Required explicit spend/execute confirmation", false)
     .option("--yes", "Alias for --confirm", false)
     .option("--seconds <n>", "Clip length", (v) => Number(v), 5)
-    .option("--backend <id>", "runpod-h3 | minimax-h3-api")
+    .option("--backend <id>", "runpod-h3 | minimax-h3-api | fal-ai (alias: fal)")
     .option("--resolution <res>", "768P | 2K", "768P")
     .option("--approve-script", "Record human script approval in the same step", false)
     .option("--simulate-spend", "Debit the estimate against the cap (still no cloud call)", false)
@@ -148,7 +148,7 @@ dataDirOption(
 dataDirOption(
   program
     .command("demo")
-    .description("One-command dry-run: brief → script → estimate → refused generate → confirmed generate → assemble → cost")
+    .description("One-command dry-run: brief → script → estimate → refuse/confirm (runpod + fal) → assemble → cost")
     .option("--client <id>", "Client id", "aether-wellness")
     .action((opts) => {
       process.exitCode = cmdDemo(opts);

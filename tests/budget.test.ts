@@ -3,6 +3,7 @@ import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { parseBackend } from "../src/lib/backends/registry.ts";
 import { budgetGate, billedUsd, buildEstimate } from "../src/lib/budget.ts";
 import { loadClient } from "../src/lib/config.ts";
 import { insertLedger, openDb } from "../src/lib/db.ts";
@@ -11,12 +12,32 @@ function scratch() {
   return mkdtempSync(join(tmpdir(), "jeremai-"));
 }
 
+test("parseBackend accepts fal alias and rejects junk", () => {
+  assert.equal(parseBackend("fal"), "fal-ai");
+  assert.equal(parseBackend("FAL-AI"), "fal-ai");
+  assert.throws(() => parseBackend("kling"), /Unknown backend/);
+});
+
 test("runpod 5s quote is $0.17 before retries buffer", () => {
   const { db } = openDb(scratch());
   const client = loadClient("aether-wellness");
   const est = buildEstimate(db, { ...client, retriesBuffer: 1 }, { seconds: 5, backend: "runpod-h3" });
   assert.equal(est.baseCostUsd, 0.17);
   assert.equal(est.estimatedCostUsd, 0.17);
+});
+
+test("fal-ai alias quotes H3 Max Turbo $0.20 / 5s @768P", () => {
+  const { db } = openDb(scratch());
+  const client = loadClient("aether-wellness");
+  const est = buildEstimate(db, { ...client, retriesBuffer: 1 }, {
+    seconds: 5,
+    backend: "fal",
+    resolution: "768P",
+  });
+  assert.equal(est.backend, "fal-ai");
+  assert.equal(est.baseCostUsd, 0.2);
+  assert.equal(est.estimatedCostUsd, 0.2);
+  assert.match(est.model, /h3-max-turbo/);
 });
 
 test("minimax API 5s 768P quote is the $0.40 ceiling", () => {
