@@ -193,7 +193,18 @@ $("sheet-confirm").addEventListener("click", async () => {
   }
 });
 $("sheet-copy").addEventListener("click", () => {
-  copy(fillInstruction("make-clip", blanks({ confirm: true, countQuote: $("count-quote").checked })));
+  const priced = state.priced;
+  if (!priced) {
+    $("sentence").textContent = "The price is for different settings. Check the price again.";
+    return;
+  }
+  copy(fillInstruction("make-clip", blanks({
+    confirm: true,
+    countQuote: $("count-quote").checked,
+    seconds: priced.seconds,
+    backend: priced.backend,
+    resolution: priced.resolution,
+  })));
 });
 $("toggle-terminal").addEventListener("click", () => {
   $("terminal").hidden = !$("terminal").hidden;

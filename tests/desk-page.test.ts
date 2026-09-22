@@ -18,4 +18,12 @@ test("inactive fields stay hidden and confirm is bound to the priced settings", 
   assert.match(js, /The price is for different settings\. Check the price again\./);
   assert.match(js, /body\.exitCode !== 0/);
   assert.match(js, /state\.confirming/);
+  const copyHandler = js.slice(js.indexOf('$("sheet-copy")'));
+  assert.match(copyHandler, /const priced = state\.priced/);
+  assert.match(copyHandler, /if \(!priced\)/);
+  assert.match(copyHandler, /The price is for different settings\. Check the price again\./);
+  assert.match(copyHandler, /seconds: priced\.seconds/);
+  assert.match(copyHandler, /backend: priced\.backend/);
+  assert.match(copyHandler, /resolution: priced\.resolution/);
+  assert.match(copyHandler, /confirm: true/);
 });
