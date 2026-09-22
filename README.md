@@ -4,6 +4,10 @@ Agent-native **CLI** for Nutra ad creative production. Not a web app. Not a SaaS
 
 **User guide:** [`skills/userguide.md`](skills/userguide.md) — first-run, copy-paste commands, backends, budgets, claims, editor handoff, troubleshooting. Agents: start there, then `AGENTS.md`.
 
+## Local desk
+
+`pnpm desk` serves http://127.0.0.1:4173 on this computer. Buttons run the CLI. Copy puts a finished instruction on the clipboard for a terminal agent. The desk is not deployed and it does not publish.
+
 Human brief / winning ad (10–15%) → agent script, B-roll search/reuse, generate, assemble (~90%) → human editor polish (~10%) → **human** publish. Never auto-publish.
 
 Built for the Jeremy paid-test: one client brain, claims allowlist, confirm-before-spend, per-client hard cap. Video backends are **stubs**. This repo will not rent a GPU or call MiniMax / fal paygo.

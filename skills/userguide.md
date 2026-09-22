@@ -136,7 +136,7 @@ Captions = **approved script only**. Do not upload from the NLE. A human posts. 
 | Comfy / product refs | Do not invent a UI. See `skills/comfyui.md` + `workflows/`. |
 
 ## What NOT to do
-- Build a web UI or wire media-buying
+- Build a deployed web UI, or wire media-buying. `pnpm desk` is the local desk on this computer.
 - Call MiniMax, fal, or rent a RunPod GPU from this MVP
 - Commit `.env` or paste API keys into chat
 - Auto-publish

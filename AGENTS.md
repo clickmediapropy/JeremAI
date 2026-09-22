@@ -2,6 +2,8 @@
 
 You are driving an **ops CLI**, not a web app. Nutra ads. Confirm-before-spend. Never auto-publish.
 
+`pnpm desk` serves a local page at `http://127.0.0.1:4173`. It runs the CLI on this computer. It is not deployed and it does not publish.
+
 **New here?** Read `skills/userguide.md` first. Then pick a step skill below.
 
 ## Product shape
@@ -46,7 +48,7 @@ jeremai cost --client <id>
 4. Soft-warn 80% of `budget_cap_usd`. Hard-stop 100%.
 5. All video backends are **dry-run stubs**. Do not rent GPUs. Do not call MiniMax or fal. Cost pitch: self-host H3 on RunPod **~$0.17 / ~5s** (hypothesis) vs fal H3 Max Turbo **$0.20 / 5s** vs API ceiling **$0.08/s @768P / $0.13/s @2K**.
 6. Knowledge = `knowledge/clients/<id>/` (HQ by Indigo stand-in). Ignore indigohq.com.
-7. Never add a web UI. Never wire media-buying.
+7. Never add a deployed web UI. `pnpm desk` is the local desk and binds `127.0.0.1` only. Never wire media-buying. Never deploy the desk.
 
 ## Client config
 `knowledge/clients/<id>/config.yaml` — cap, claims path, Drive/R2 URIs, preferred backend (`runpod-h3` default). Per-job override: `--backend fal` / `fal-ai` / `minimax-h3-api`.
