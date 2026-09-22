@@ -62,3 +62,26 @@ test("the desk binds this computer and an unconfirmed clip stops", async () => {
     await desk.close();
   }
 });
+
+test("a null run body and a missing file do not stop the desk", async () => {
+  const dataDir = mkdtempSync(join(tmpdir(), "jeremai-desk-"));
+  const desk = await startDesk({ port: 0, dataDir });
+  try {
+    const rejected = await fetch(`http://127.0.0.1:${desk.port}/api/run`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "null",
+    });
+    const rejectedBody = (await rejected.json()) as { sentence: string };
+    assert.equal(rejected.status, 400);
+    assert.equal(rejectedBody.sentence, "Stopped. Something on this step is not valid.");
+
+    const css = await fetch(`http://127.0.0.1:${desk.port}/desk.css`);
+    assert.equal(css.status, 404);
+
+    const state = await fetch(`http://127.0.0.1:${desk.port}/api/state?brand=aether-wellness`);
+    assert.equal(state.status, 200);
+  } finally {
+    await desk.close();
+  }
+});

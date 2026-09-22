@@ -43,7 +43,13 @@ export function startDesk(opts: { port?: number; dataDir: string; spawn?: SpawnF
       for await (const chunk of req) chunks.push(chunk as Buffer);
       let body: RunBody;
       try {
-        body = JSON.parse(Buffer.concat(chunks).toString("utf8")) as RunBody;
+        const parsed: unknown = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+        if (parsed === null || typeof parsed !== "object") {
+          res.writeHead(400, { "content-type": "application/json; charset=utf-8" });
+          res.end(JSON.stringify({ sentence: "Stopped. Something on this step is not valid." }));
+          return;
+        }
+        body = parsed as RunBody;
       } catch {
         res.writeHead(400, { "content-type": "application/json; charset=utf-8" });
         res.end(JSON.stringify({ sentence: "Stopped. Something on this step is not valid." }));
@@ -62,8 +68,19 @@ export function startDesk(opts: { port?: number; dataDir: string; spawn?: SpawnF
     }
     const file = FILES[url.pathname];
     if (req.method === "GET" && file) {
-      res.writeHead(200, { "content-type": file.type });
-      createReadStream(join(publicDir, file.file)).pipe(res);
+      const stream = createReadStream(join(publicDir, file.file));
+      stream.on("error", () => {
+        if (!res.headersSent) {
+          res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
+          res.end("Not found");
+          return;
+        }
+        res.destroy();
+      });
+      stream.once("open", () => {
+        res.writeHead(200, { "content-type": file.type });
+        stream.pipe(res);
+      });
       return;
     }
     res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });
