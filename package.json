@@ -11,6 +11,7 @@
   "scripts": {
     "jeremai": "node --no-warnings --import tsx src/cli.ts",
     "demo": "node --no-warnings --import tsx src/cli.ts demo",
+    "desk": "node --no-warnings --import tsx src/desk/server.ts",
     "test": "node --no-warnings --import tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
