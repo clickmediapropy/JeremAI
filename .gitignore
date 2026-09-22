@@ -28,3 +28,4 @@ coverage/
 # Agent scratch
 uploads/
 .cursor/
+.worktrees/
