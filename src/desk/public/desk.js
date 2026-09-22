@@ -13,12 +13,20 @@ const STEPS = [
   { id: "practice", label: "Practice run", title: "Practice run", help: "The packaged path, in its own library.", button: "Run the practice job", fields: [], apart: true },
 ];
 
-const state = { brandId: "aether-wellness", step: "find-footage", snapshot: null, last: null };
+const state = { brandId: "aether-wellness", step: "find-footage", snapshot: null, last: null, priced: null, confirming: false };
 
 const $ = (id) => document.getElementById(id);
 
 function dollars(n) {
   return `$${n.toFixed(2)}`;
+}
+
+function priceFields() {
+  return {
+    seconds: Number($("seconds").value || 5),
+    backend: $("backend").value,
+    resolution: $("size").value,
+  };
 }
 
 function blanks(extra = {}) {
@@ -151,18 +159,38 @@ $("run").addEventListener("click", () => run(state.step));
 $("try-stop").addEventListener("click", () => run("make-clip", { confirm: false }));
 $("copy").addEventListener("click", () => copy(fillInstruction(state.step, blanks({ confirm: false }))));
 $("open-sheet").addEventListener("click", async () => {
+  const priced = priceFields();
   const body = await run("check-price");
+  const now = priceFields();
+  if (priced.seconds !== now.seconds || priced.backend !== now.backend || priced.resolution !== now.resolution) {
+    $("sentence").textContent = "The price is for different settings. Check the price again.";
+    return;
+  }
   if (!body) return;
+  state.priced = priced;
   $("sheet-sentence").textContent = body.sentence;
   $("count-quote").checked = false;
-  const blocked = body.sentence.includes("Making a clip will stop");
+  const blocked = body.exitCode !== 0 || body.sentence.includes("Making a clip will stop");
   $("sheet-confirm").hidden = blocked;
   $("sheet").showModal();
 });
 $("sheet-close").addEventListener("click", () => $("sheet").close());
 $("sheet-confirm").addEventListener("click", async () => {
-  await run("make-clip", { confirm: true, countQuote: $("count-quote").checked });
-  $("sheet").close();
+  if (state.confirming) return;
+  state.confirming = true;
+  try {
+    const priced = state.priced;
+    const body = await run("make-clip", {
+      confirm: true,
+      countQuote: $("count-quote").checked,
+      seconds: priced.seconds,
+      backend: priced.backend,
+      resolution: priced.resolution,
+    });
+    if (body) $("sheet").close();
+  } finally {
+    state.confirming = false;
+  }
 });
 $("sheet-copy").addEventListener("click", () => {
   copy(fillInstruction("make-clip", blanks({ confirm: true, countQuote: $("count-quote").checked })));

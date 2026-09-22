@@ -49,7 +49,8 @@ nav .apart { margin-top: 20px; }
 main, aside { padding: 20px 22px; }
 aside { border-left: 1px solid var(--line); background: var(--card); }
 label { display: block; margin: 12px 0; }
-input, select { width: 100%; margin-top: 4px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+[hidden] { display: none !important; }
+input:not([type="checkbox"]), select { width: 100%; margin-top: 4px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: white; }
 .hint { display: block; margin-top: 4px; color: var(--muted); font-size: 14px; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
 .actions button, #toggle-terminal {
