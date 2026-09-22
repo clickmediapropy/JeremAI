@@ -34,6 +34,8 @@ test("bathroom scale is held back only when the footage words match it", () => {
   const morning = footageSentence(assets, "morning kitchen");
   assert.equal(morning.includes("Bathroom scale"), false);
   assert.match(morning, /clips are fine to use in an ad/);
+  const blank = footageSentence(assets, "");
+  assert.equal(blank.includes("Bathroom scale"), false);
 });
 
 test("empty library and a price quote", () => {

@@ -16,7 +16,7 @@ export function stopSentence(exitCode: number): string | null {
 
 export function footageSentence(assets: AssetRecord[], query: string): string {
   if (assets.length === 0) return "The library is empty. Set up this brand first.";
-  const ranked = searchBroll(assets, query).slice(0, 8);
+  const ranked = searchBroll(assets, query).filter((hit) => hit.score > 0).slice(0, 8);
   if (ranked.length === 0) {
     return "Nothing safe to use matched. You can still check the price before making a clip.";
   }
