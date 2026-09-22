@@ -58,6 +58,14 @@ test("the desk binds this computer and an unconfirmed clip stops", async () => {
     const missingBody = (await missing.json()) as { sentence: string };
     assert.equal(missing.status, 404);
     assert.equal(missingBody.sentence, "That brand is not on this computer.");
+
+    const page = await fetch(`http://127.0.0.1:${desk.port}/`);
+    const html = await page.text();
+    assert.equal(page.status, 200);
+    assert.match(html, /Aether Wellness/);
+    assert.match(html, /What footage do you need\?/);
+    assert.doesNotMatch(html, /<label[^>]*>\s*Client/);
+    assert.doesNotMatch(html, /<label[^>]*>\s*Query/);
   } finally {
     await desk.close();
   }
@@ -77,7 +85,10 @@ test("a null run body and a missing file do not stop the desk", async () => {
     assert.equal(rejectedBody.sentence, "Stopped. Something on this step is not valid.");
 
     const css = await fetch(`http://127.0.0.1:${desk.port}/desk.css`);
-    assert.equal(css.status, 404);
+    assert.equal(css.status, 200);
+
+    const js = await fetch(`http://127.0.0.1:${desk.port}/desk.js`);
+    assert.equal(js.status, 200);
 
     const state = await fetch(`http://127.0.0.1:${desk.port}/api/state?brand=aether-wellness`);
     assert.equal(state.status, 200);

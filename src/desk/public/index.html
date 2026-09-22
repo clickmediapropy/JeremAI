@@ -1,1 +1,83 @@
-<!doctype html><title>JeremAI</title>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JeremAI</title>
+  <link rel="stylesheet" href="/desk.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <p class="eyebrow">Working on</p>
+      <h1 id="brand-name">Aether Wellness</h1>
+      <p id="product">Aether Daily Mineral</p>
+    </div>
+    <label class="switch">Switch brand
+      <select id="brand"></select>
+    </label>
+    <div class="budget" id="budget">
+      <span>Budget $25.00</span>
+      <span>Spent $0.00</span>
+      <span>Nothing spent yet</span>
+    </div>
+  </header>
+  <div class="layout">
+    <nav id="steps" aria-label="Steps"></nav>
+    <main>
+      <h2 id="step-title">Find footage you already have</h2>
+      <p id="step-help">Look through this brand’s library before making a new clip.</p>
+      <form id="form">
+        <label id="notes-label">Notes file on this computer
+          <input id="notes" name="notes" value="fixtures/briefs/aether-morning.md">
+        </label>
+        <label id="footage-label">What footage do you need?
+          <input id="footage" name="footage" value="morning kitchen, scooping powder, mug by the window">
+          <span class="hint">Everyday words. The search matches them to clips already on file.</span>
+        </label>
+        <label id="seconds-label">Clip length (seconds)
+          <input id="seconds" name="seconds" type="number" min="1" value="5">
+        </label>
+        <label id="backend-label">How it would be made
+          <select id="backend">
+            <option value="runpod-h3">RunPod, self-hosted</option>
+            <option value="fal-ai">fal.ai</option>
+            <option value="minimax-h3-api">MiniMax API</option>
+          </select>
+        </label>
+        <label id="size-label">Picture size
+          <select id="size">
+            <option value="768P">Standard</option>
+            <option value="2K">High</option>
+          </select>
+        </label>
+      </form>
+      <div class="actions">
+        <button id="run" type="button">Search the library</button>
+        <button id="try-stop" type="button" hidden>Try it — it should stop</button>
+        <button id="open-sheet" type="button" hidden>Confirm and make the clip</button>
+        <button id="copy" type="button">Copy instructions</button>
+      </div>
+      <p id="sentence"></p>
+      <pre id="script" hidden></pre>
+      <button id="toggle-terminal" type="button">Show the terminal output</button>
+      <pre id="terminal" hidden></pre>
+    </main>
+    <aside>
+      <p class="eyebrow">Instructions to paste</p>
+      <pre id="instruction"></pre>
+    </aside>
+  </div>
+  <dialog id="sheet">
+    <p id="sheet-sentence"></p>
+    <p>This practice clip records $0.</p>
+    <label><input id="count-quote" type="checkbox"> Count this quote against the budget (still no real charge).</label>
+    <div class="actions">
+      <button id="sheet-confirm" type="button">Confirm</button>
+      <button id="sheet-copy" type="button">Copy instructions</button>
+      <button id="sheet-close" type="button">Close</button>
+    </div>
+  </dialog>
+  <script type="module" src="/desk.js"></script>
+</body>
+</html>
