@@ -2,6 +2,8 @@
 
 Agent-native **CLI** for Nutra ad creative production. Not a web app. Not a SaaS studio.
 
+**User guide:** [`skills/userguide.md`](skills/userguide.md) — first-run, copy-paste commands, backends, budgets, claims, editor handoff, troubleshooting. Agents: start there, then `AGENTS.md`.
+
 Human brief / winning ad (10–15%) → agent script, B-roll search/reuse, generate, assemble (~90%) → human editor polish (~10%) → **human** publish. Never auto-publish.
 
 Built for the Jeremy paid-test: one client brain, claims allowlist, confirm-before-spend, per-client hard cap. Video backends are **stubs**. This repo will not rent a GPU or call MiniMax / fal paygo.
@@ -36,6 +38,8 @@ Do not bank a paid-test budget on $0.17 until someone measures wall-clock second
 - pnpm or npm
 
 ## Install + demo dry-run
+
+Walkthrough for buyers, editors, and agents: **[`skills/userguide.md`](skills/userguide.md)**.
 
 ```bash
 pnpm install
@@ -118,7 +122,7 @@ cost          ──► billed live vs cap (dry-run quotes do not count)
 
 **Client brain** (HQ stand-in): `knowledge/clients/<id>/` — `config.yaml`, `brand.md`, `claims-allowlist.yaml`, `policies.md`.
 
-**Agent skills:** `skills/` + `AGENTS.md` (runpod, comfyui, fal, copywriting, compliance, script, storyboard, assemble, ship, b-roll reuse, budget meters).
+**Agent skills:** `skills/userguide.md` first, then `AGENTS.md` (runpod, comfyui, fal, copywriting, compliance, script, storyboard, assemble, ship, b-roll reuse, budget meters).
 
 ## Paid-test metrics
 
