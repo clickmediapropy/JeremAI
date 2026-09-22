@@ -149,7 +149,7 @@ Same runner as `pnpm test`. No new test framework.
 1. The server listens on this computer only. A step id outside the ten steps is rejected and never starts a process. `--confirm` on any step other than Make the clip is rejected.
 2. Find footage for “bathroom scale” on Aether Wellness names that clip as held back. Find footage for “morning kitchen” does not list it as a clip to use.
 3. Make the clip without the sheet returns the exit-2 sentence and spends $0. `--confirm` is sent only from the sheet’s Confirm button. A practice clip records $0 unless the checkbox is on.
-4. Instruction templates include the footage words and the fixed stop line. The write-script template has no `--approve`. The unconfirmed clip template has no `--confirm`. The confirmed template has `--confirm` only when the sheet produced it.
+4. Instruction templates include the footage words and the fixed stop line. The write-script template has no `--approve`. The unconfirmed clip command does not pass `--confirm`. Its sentence may name that flag to forbid it. The confirmed template passes `--confirm` only when the sheet produced it.
 5. The served page header contains “Aether Wellness” and the find-footage blank contains “What footage do you need?” `pnpm test` and `pnpm typecheck` still pass.
 
 Automated tests cover the argv builder, the headlines, and the templates. One automated test starts the desk on a temporary library and checks the unconfirmed clip stop. One browser pass checks the words and that a blocked clipboard still leaves the instruction on screen.

@@ -83,7 +83,7 @@ test("unconfirmed clip instruction has no confirm flag", () => {
     resolution: "768P",
   });
   assert.match(text, /pnpm jeremai generate --client aether-wellness --seconds 5 --backend runpod-h3 --resolution 768P/);
-  assert.equal(text.includes("--confirm"), false);
+  assert.doesNotMatch(text, /generate --client[^\n]*--confirm/);
   assert.match(text, /Do not pass `--confirm`\./);
 });
 
