@@ -3,7 +3,7 @@ import { join } from "node:path";
 import yaml from "js-yaml";
 import { z } from "zod";
 import { BACKENDS, type ClaimsPolicy, type ClientConfig } from "../types.ts";
-import { clientDir, knowledgeDir } from "./paths.ts";
+import { clientDir, clientsRoot } from "./paths.ts";
 
 const clientSchema = z.object({
   id: z.string().min(1),
@@ -35,8 +35,8 @@ const claimsSchema = z.object({
   banned_terms: z.array(z.object({ term: z.string(), reason: z.string() })),
 });
 
-export function listClients(): string[] {
-  const dir = join(knowledgeDir(), "clients");
+export function listClients(root?: string): string[] {
+  const dir = clientsRoot(root);
   if (!existsSync(dir)) return [];
   return readdirSync(dir, { withFileTypes: true })
     .filter((d) => d.isDirectory() && existsSync(join(dir, d.name, "config.yaml")))
@@ -44,10 +44,11 @@ export function listClients(): string[] {
     .sort();
 }
 
-export function loadClient(clientId: string): ClientConfig {
-  const path = join(clientDir(clientId), "config.yaml");
+export function loadClient(clientId: string, root?: string): ClientConfig {
+  const dir = clientDir(clientId, root);
+  const path = join(dir, "config.yaml");
   if (!existsSync(path)) {
-    const known = listClients();
+    const known = listClients(root);
     throw new Error(
       `Unknown client "${clientId}". Known: ${known.length ? known.join(", ") : "(none)"}.`,
     );
@@ -60,9 +61,9 @@ export function loadClient(clientId: string): ClientConfig {
     product: parsed.product,
     vertical: parsed.vertical,
     budgetCapUsd: parsed.budget_cap_usd,
-    claimsPolicyPath: join(clientDir(clientId), parsed.claims_policy),
-    brandPath: join(clientDir(clientId), parsed.brand),
-    policiesPath: join(clientDir(clientId), parsed.policies),
+    claimsPolicyPath: join(dir, parsed.claims_policy),
+    brandPath: join(dir, parsed.brand),
+    policiesPath: join(dir, parsed.policies),
     driveUri: parsed.drive_uri,
     r2Uri: parsed.r2_uri,
     preferredBackend: parsed.preferred_backend,

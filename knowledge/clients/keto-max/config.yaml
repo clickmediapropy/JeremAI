@@ -1,0 +1,12 @@
+id: keto-max
+name: Keto max
+product: a diet pill
+vertical: general-wellness
+budget_cap_usd: 100
+claims_policy: claims-allowlist.yaml
+brand: brand.md
+policies: policies.md
+drive_uri: gdrive://keto-max/Creative/Footage
+r2_uri: r2://keto-max-cache/working
+preferred_backend: runpod-h3
+retries_buffer: 1.2

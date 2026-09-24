@@ -11,9 +11,10 @@ const STEPS = [
   { id: "rough-cut", label: "Build the rough cut", title: "Build the rough cut", help: "Files for the editor. The ad is not posted.", button: "Build the rough cut", fields: [] },
   { id: "spending", label: "See spending", title: "See spending", help: "What has been counted against the budget.", button: "See spending", fields: [] },
   { id: "practice", label: "Practice run", title: "Practice run", help: "The packaged path, in its own library.", button: "Run the practice job", fields: [], apart: true },
+  { id: "keys", label: "Keys", title: "Keys and install", help: "Save API keys on this computer, and copy the official install commands.", button: "", fields: [], apart: true },
 ];
 
-const state = { brandId: "aether-wellness", step: "find-footage", snapshot: null, last: null, priced: null, confirming: false };
+const state = { brandId: "aether-wellness", step: "find-footage", snapshot: null, last: null, priced: null, confirming: false, models: [], model: "" };
 
 const $ = (id) => document.getElementById(id);
 
@@ -57,12 +58,24 @@ function showFields() {
   }
   $("step-title").textContent = step.title;
   $("step-help").textContent = step.help;
+  const keys = state.step === "keys";
+  const canFill = state.models.length > 0 && !keys;
+  $("form").hidden = keys;
+  $("fill").hidden = !canFill;
+  $("model-label").hidden = !canFill;
+  $("keys").hidden = !keys;
   const make = state.step === "make-clip";
-  $("run").hidden = make;
+  $("run").hidden = make || keys;
   $("try-stop").hidden = !make;
   $("open-sheet").hidden = !make;
-  $("run").textContent = step.button;
-  $("instruction").textContent = fillInstruction(state.step, blanks());
+  $("copy").hidden = keys;
+  $("toggle-terminal").hidden = keys;
+  if (keys) $("terminal").hidden = true;
+  if (!keys) $("run").textContent = step.button;
+  $("instruction").textContent = keys
+    ? "Install commands are on this tab. Copy does not run them."
+    : fillInstruction(state.step, blanks());
+  if (keys) loadKeys();
 }
 
 function render() {
@@ -124,6 +137,7 @@ async function load() {
     return;
   }
   state.snapshot = await res.json();
+  await loadModels();
   render();
   showFields();
 }
@@ -215,6 +229,37 @@ $("brand").addEventListener("change", () => {
   $("backend").dataset.touched = "";
   load();
 });
+$("new-brand-open").addEventListener("click", () => $("new-brand").showModal());
+$("new-brand-close").addEventListener("click", () => $("new-brand").close());
+$("new-brand-form").addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const allowedClaims = $("new-claims").value.split("\n").map((line) => line.trim()).filter(Boolean);
+  let res;
+  try {
+    res = await fetch("/api/brands", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        name: $("new-name").value,
+        product: $("new-product").value,
+        budgetCapUsd: Number($("new-budget").value),
+        allowedClaims,
+      }),
+    });
+  } catch {
+    $("sentence").textContent = "The desk is not running on this computer.";
+    return;
+  }
+  const body = await res.json();
+  $("sentence").textContent = body.sentence;
+  if (!res.ok) return;
+  state.brandId = body.id;
+  $("notes").dataset.touched = "";
+  $("backend").dataset.touched = "";
+  $("new-brand-form").reset();
+  $("new-brand").close();
+  await load();
+});
 $("notes").addEventListener("input", () => { $("notes").dataset.touched = "1"; showFields(); });
 $("footage").addEventListener("input", showFields);
 $("seconds").addEventListener("input", showFields);
@@ -228,6 +273,134 @@ async function copy(text) {
   } catch {
     /* The instruction stays on screen. */
   }
+}
+
+async function loadKeys() {
+  const res = await fetch("/api/keys");
+  if (!res.ok) return;
+  const body = await res.json();
+  const form = $("keys-form");
+  form.textContent = "";
+  for (const key of body.keys) {
+    const row = document.createElement("div");
+    row.className = "key-row";
+    const label = document.createElement("label");
+    label.textContent = `${key.label} key`;
+    const input = document.createElement("input");
+    input.type = "password";
+    input.autocomplete = "off";
+    input.placeholder = key.set ? "Saved. Paste a new key to replace it." : "Paste the key";
+    label.append(input);
+    const status = document.createElement("p");
+    status.className = "key-status";
+    status.textContent = key.set ? "Saved on this computer." : "Not set.";
+    label.append(status);
+    const save = document.createElement("button");
+    save.type = "button";
+    save.textContent = "Save";
+    save.addEventListener("click", () => storeKey(key.env, input.value));
+    const clear = document.createElement("button");
+    clear.type = "button";
+    clear.textContent = "Remove";
+    clear.hidden = !key.set;
+    clear.addEventListener("click", () => storeKey(key.env, "", true));
+    row.append(label, save, clear);
+    form.append(row);
+  }
+}
+
+async function storeKey(env, value, clear) {
+  const res = await fetch("/api/keys", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(clear ? { env, clear: true } : { env, value }),
+  });
+  const body = await res.json();
+  $("sentence").textContent = body.sentence;
+  if (res.ok) {
+    await loadKeys();
+    await loadModels();
+    showFields();
+  }
+}
+
+async function loadModels() {
+  const res = await fetch("/api/models");
+  if (!res.ok) return;
+  const body = await res.json();
+  state.models = body.models ?? [];
+  state.model = body.selected || state.models[0]?.id || "";
+  const select = $("model");
+  select.textContent = "";
+  const list = $("model-list");
+  list.textContent = "";
+  if (!state.models.length) return;
+  const heading = document.createElement("h3");
+  heading.textContent = "Models that can read text and pictures";
+  list.append(heading);
+  for (const model of state.models) {
+    const option = document.createElement("option");
+    option.value = model.id;
+    option.textContent = model.name;
+    select.append(option);
+    const label = document.createElement("label");
+    const radio = document.createElement("input");
+    radio.type = "radio";
+    radio.name = "openrouter-model";
+    radio.value = model.id;
+    radio.checked = model.id === state.model;
+    radio.addEventListener("change", () => chooseModel(model.id));
+    label.append(radio, document.createTextNode(` ${model.name}`));
+    list.append(label);
+  }
+  select.value = state.model;
+}
+
+async function chooseModel(id) {
+  state.model = id;
+  $("model").value = id;
+  await fetch("/api/model", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+}
+
+$("model").addEventListener("change", () => chooseModel($("model").value));
+$("fill").addEventListener("click", async () => {
+  $("sentence").textContent = "";
+  const res = await fetch("/api/fill", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ brand: state.brandId, step: state.step, model: state.model }),
+  });
+  const body = await res.json();
+  $("sentence").textContent = body.sentence;
+  if (!res.ok) return;
+  if (body.notesPath) {
+    $("notes").value = body.notesPath;
+    $("notes").dataset.touched = "1";
+  }
+  if (body.footage) $("footage").value = body.footage;
+  if (body.seconds) $("seconds").value = String(body.seconds);
+  if (body.backend) {
+    $("backend").value = body.backend;
+    $("backend").dataset.touched = "1";
+  }
+  if (body.resolution) $("size").value = body.resolution;
+  if (body.script) {
+    $("script").hidden = false;
+    $("script").textContent = body.script;
+  }
+  if (body.saved) await load();
+  else showFields();
+});
+
+for (const button of document.querySelectorAll("[data-copy]")) {
+  button.addEventListener("click", () => {
+    const node = $(button.dataset.copy);
+    if (node) copy(node.textContent);
+  });
 }
 
 load().catch(() => {

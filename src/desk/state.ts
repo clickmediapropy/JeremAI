@@ -29,14 +29,14 @@ export interface DeskState {
   } | null;
 }
 
-export function readState(brandId: string, dataDir: string): DeskState {
-  const brands = listClients().map((id) => {
-    const client = loadClient(id);
+export function readState(brandId: string, dataDir: string, clientsDir?: string): DeskState {
+  const brands = listClients(clientsDir).map((id) => {
+    const client = loadClient(id, clientsDir);
     return { id, name: client.name, product: client.product, preferredBackend: client.preferredBackend };
   });
   const known = brands.find((brand) => brand.id === brandId);
   if (!known) return { brands, brand: null };
-  const client = loadClient(brandId);
+  const client = loadClient(brandId, clientsDir);
   const prefillPath = join(findProjectRoot(), "fixtures", "briefs", "aether-morning.md");
   const notesPrefill = existsSync(prefillPath) ? "fixtures/briefs/aether-morning.md" : null;
   const db = openReadOnly(dataDir);

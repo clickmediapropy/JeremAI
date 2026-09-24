@@ -1,0 +1,62 @@
+product: a diet pill
+disclaimer: >-
+  These statements have not been evaluated by the Food and Drug Administration. This product is not intended to
+  diagnose, treat, cure, or prevent any disease.
+allowed_claims:
+  - diet pill
+banned_patterns:
+  - id: cure-language
+    pattern: \bcure[sd]?\b
+    reason: Disease-treatment language. FTC + FDA risk.
+    severity: fail
+  - id: treat-language
+    pattern: \btreat(s|ment|ing)?\b
+    reason: Treatment claim. Not a structure/function statement.
+    severity: fail
+  - id: prevent-disease
+    pattern: \bprevent(s|ing|ion)?\b
+    reason: Prevention claims need drug-level substantiation.
+    severity: fail
+  - id: diagnose
+    pattern: \bdiagnos(e|es|ed|ing|is)\b
+    reason: Diagnostic claim.
+    severity: fail
+  - id: before-after
+    pattern: before\s*[/&-]?\s*after
+    reason: Meta Health & Wellness frequently rejects before/after in this category.
+    severity: fail
+  - id: guaranteed
+    pattern: \bguarantee[ds]?\b
+    reason: Outcome guarantee.
+    severity: fail
+  - id: miracle
+    pattern: \bmiracle\b
+    reason: Hype / typicality risk.
+    severity: fail
+  - id: pounds
+    pattern: lose\s+\d+\s*(lb|lbs|pounds|kgs?)
+    reason: Specific weight-loss claim.
+    severity: fail
+  - id: fda-approved
+    pattern: fda\s+approved
+    reason: False regulatory endorsement unless the specific claim is substantiated and allowlisted.
+    severity: fail
+  - id: doctor-recommended
+    pattern: doctors?\s+recommend
+    reason: Expert endorsement needs substantiation + typicality.
+    severity: warn
+banned_terms:
+  - term: cancer
+    reason: Disease claim.
+  - term: diabetes
+    reason: Disease claim.
+  - term: alzheimer
+    reason: Disease claim.
+  - term: covid
+    reason: Disease claim.
+  - term: erectile
+    reason: High-risk sexual-health claim for a wellness pilot.
+  - term: anxiety
+    reason: Mental-health disease-adjacent; not on this client's allowlist.
+  - term: depression
+    reason: Mental-health disease-adjacent; not on this client's allowlist.

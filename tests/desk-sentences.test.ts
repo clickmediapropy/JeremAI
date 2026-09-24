@@ -39,7 +39,10 @@ test("bathroom scale is held back only when the footage words match it", () => {
 });
 
 test("empty library and a price quote", () => {
-  assert.equal(footageSentence([], "morning kitchen"), "The library is empty. Set up this brand first.");
+  assert.equal(
+    footageSentence([], "morning kitchen"),
+    "This brand has no clips yet. You can still check the price before making a clip.",
+  );
   const dataDir = mkdtempSync(join(tmpdir(), "jeremai-price-"));
   const { db } = openDb(dataDir);
   const client = loadClient("aether-wellness");

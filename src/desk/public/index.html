@@ -13,9 +13,12 @@
       <h1 id="brand-name">Aether Wellness</h1>
       <p id="product">Aether Daily Mineral</p>
     </div>
-    <label class="switch">Switch brand
-      <select id="brand"></select>
-    </label>
+    <div class="brand-picker">
+      <label class="switch">Switch brand
+        <select id="brand"></select>
+      </label>
+      <button id="new-brand-open" type="button">New brand</button>
+    </div>
     <div class="budget" id="budget">
       <span>Budget $25.00</span>
       <span>Spent $0.00</span>
@@ -53,11 +56,44 @@
         </label>
       </form>
       <div class="actions">
+        <label id="model-label" hidden>Model
+          <select id="model"></select>
+        </label>
+        <button id="fill" type="button" hidden>Fill with AI</button>
         <button id="run" type="button">Search the library</button>
         <button id="try-stop" type="button" hidden>Try it — it should stop</button>
         <button id="open-sheet" type="button" hidden>Confirm and make the clip</button>
         <button id="copy" type="button">Copy instructions</button>
       </div>
+      <section id="keys" hidden>
+        <p class="hint">A saved key stays on this computer, in <code>.env</code>. This desk does not show it again, and it still does not call RunPod, fal, or MiniMax.</p>
+        <form id="keys-form"></form>
+        <div id="model-list"></div>
+        <h3>Install on this computer</h3>
+        <p class="hint">Official commands. Copy them. The desk does not run them.</p>
+        <article class="install">
+          <h4>RunPod skills</h4>
+          <pre id="cmd-runpod-skills">npx skills add runpod/runpod-plugins-official</pre>
+          <button type="button" data-copy="cmd-runpod-skills">Copy</button>
+        </article>
+        <article class="install">
+          <h4>RunPod CLI</h4>
+          <pre id="cmd-runpod-cli">brew install runpod/runpodctl/runpodctl</pre>
+          <button type="button" data-copy="cmd-runpod-cli">Copy</button>
+          <pre id="cmd-runpod-script">curl -sSL https://cli.runpod.net | bash</pre>
+          <button type="button" data-copy="cmd-runpod-script">Copy</button>
+        </article>
+        <article class="install">
+          <h4>fal.ai CLI and skills</h4>
+          <pre id="cmd-fal-cli">curl https://genmedia.sh/install -fsS | bash
+genmedia setup
+genmedia init</pre>
+          <button type="button" data-copy="cmd-fal-cli">Copy</button>
+          <pre id="cmd-fal-app">pip install fal
+fal auth login</pre>
+          <button type="button" data-copy="cmd-fal-app">Copy</button>
+        </article>
+      </section>
       <p id="sentence"></p>
       <pre id="script" hidden></pre>
       <button id="toggle-terminal" type="button">Show the terminal output</button>
@@ -68,6 +104,28 @@
       <pre id="instruction"></pre>
     </aside>
   </div>
+  <dialog id="new-brand">
+    <form id="new-brand-form">
+      <h2>New brand</h2>
+      <label>Brand name
+        <input id="new-name" name="name" required>
+      </label>
+      <label>Product
+        <input id="new-product" name="product" required>
+      </label>
+      <label>Budget
+        <input id="new-budget" name="budget" type="number" min="0.01" step="0.01" required>
+      </label>
+      <label>Claims this brand may say
+        <textarea id="new-claims" name="claims" rows="5" required></textarea>
+        <span class="hint">One claim per line.</span>
+      </label>
+      <div class="actions">
+        <button type="submit">Create this brand</button>
+        <button id="new-brand-close" type="button">Close</button>
+      </div>
+    </form>
+  </dialog>
   <dialog id="sheet">
     <p id="sheet-sentence"></p>
     <p>This practice clip records $0.</p>

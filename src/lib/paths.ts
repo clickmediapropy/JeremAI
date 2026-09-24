@@ -38,8 +38,12 @@ export function knowledgeDir(): string {
   return join(findProjectRoot(), "knowledge");
 }
 
-export function clientDir(clientId: string): string {
-  return join(knowledgeDir(), "clients", clientId);
+export function clientsRoot(explicit?: string): string {
+  return explicit ?? join(knowledgeDir(), "clients");
+}
+
+export function clientDir(clientId: string, root?: string): string {
+  return join(clientsRoot(root), clientId);
 }
 
 export function ensureDir(path: string): string {
