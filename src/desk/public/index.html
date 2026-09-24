@@ -3,137 +3,264 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>JeremAI</title>
+  <title>JeremAI · Desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/desk.css">
 </head>
 <body>
-  <header class="top">
-    <div>
-      <p class="eyebrow">Working on</p>
-      <h1 id="brand-name">Aether Wellness</h1>
-      <p id="product">Aether Daily Mineral</p>
+  <header class="strip top">
+    <div class="left">
+      <span class="caps engraved">Jeremai · Desk</span>
+      <span class="brand"><span id="brand-name">Aether Wellness</span> <span>/ <span id="product">Aether Daily Mineral</span></span></span>
     </div>
-    <div class="brand-picker">
-      <label class="switch">Switch brand
-        <select id="brand"></select>
-      </label>
-      <button id="new-brand-open" type="button">New brand</button>
-    </div>
-    <div class="budget" id="budget">
-      <span>Budget $25.00</span>
-      <span>Spent $0.00</span>
-      <span>Nothing spent yet</span>
+    <div class="right brand-picker">
+      <label class="caps engraved switch" for="brand">Switch brand</label>
+      <select id="brand"></select>
+      <button id="new-brand-open" class="key small" type="button">New brand</button>
     </div>
   </header>
-  <div class="layout">
-    <nav id="steps" aria-label="Steps"></nav>
-    <main>
-      <h2 id="step-title">Find footage you already have</h2>
-      <p id="step-help">Look through this brand’s library before making a new clip.</p>
-      <form id="form">
-        <label id="notes-label">Notes file on this computer
-          <input id="notes" name="notes" value="fixtures/briefs/aether-morning.md">
-        </label>
-        <label id="footage-label">What footage do you need?
-          <input id="footage" name="footage" value="morning kitchen, scooping powder, mug by the window">
-          <span class="hint">Everyday words. The search matches them to clips already on file.</span>
-        </label>
-        <label id="seconds-label">Clip length (seconds)
-          <input id="seconds" name="seconds" type="number" min="1" value="5">
-        </label>
-        <label id="backend-label">How it would be made
-          <select id="backend">
-            <option value="runpod-h3">RunPod, self-hosted</option>
-            <option value="fal-ai">fal.ai</option>
-            <option value="minimax-h3-api">MiniMax API</option>
-          </select>
-        </label>
-        <label id="size-label">Picture size
-          <select id="size">
-            <option value="768P">Standard</option>
-            <option value="2K">High</option>
-          </select>
-        </label>
-      </form>
-      <div class="actions">
-        <label id="model-label" hidden>Model
-          <select id="model"></select>
-        </label>
-        <button id="fill" type="button" hidden>Fill with AI</button>
-        <button id="run" type="button">Search the library</button>
-        <button id="try-stop" type="button" hidden>Try it — it should stop</button>
-        <button id="open-sheet" type="button" hidden>Confirm and make the clip</button>
-        <button id="copy" type="button">Copy instructions</button>
+
+  <nav id="steps" class="transport" aria-label="Steps"></nav>
+
+  <div class="main layout">
+    <main class="console">
+      <div class="readouts">
+        <div class="well readout">
+          <span class="caps label">Budget</span>
+          <div class="gauge" role="img" id="gauge" aria-label="0% of the budget spent">
+            <div class="track"><div class="fill" id="gauge-fill"></div></div>
+            <span class="tick" style="left:0"></span>
+            <span class="tick" style="left:20%"></span>
+            <span class="tick" style="left:40%"></span>
+            <span class="tick" style="left:60%"></span>
+            <span class="tick warn" style="left:80%"></span>
+            <span class="tick" style="left:calc(100% - 1px)"></span>
+            <span class="needle" id="gauge-needle"></span>
+          </div>
+          <div class="gauge-scale" id="gauge-scale">
+            <span>$0</span><span>$5</span><span>$10</span><span>$15</span><span class="warn">$20 · 80%</span><span>$25</span>
+          </div>
+          <div class="value budget" id="budget">
+            <span>Budget $25.00</span>
+            <span>Spent $0.00</span>
+            <span>Nothing spent yet</span>
+          </div>
+        </div>
+        <div class="well readout">
+          <span class="caps label">Library</span>
+          <div class="value" id="library-readout"><span class="big">0</span> fine <span class="dim">·</span> <span class="big">0</span> held back</div>
+        </div>
+        <div class="well readout">
+          <span class="caps label">Gate</span>
+          <div class="value signal" id="gate-readout"><span class="lamp" data-lamp="signal"></span><span id="gate-text">Confirm required</span></div>
+        </div>
       </div>
-      <section id="keys" hidden>
-        <p class="hint">A saved key stays on this computer, in <code>.env</code>. This desk does not show it again, and it still does not call RunPod, fal, or MiniMax.</p>
-        <form id="keys-form"></form>
-        <div id="model-list"></div>
-        <h3>Install on this computer</h3>
-        <p class="hint">Official commands. Copy them. The desk does not run them.</p>
-        <article class="install">
-          <h4>RunPod skills</h4>
-          <pre id="cmd-runpod-skills">npx skills add runpod/runpod-plugins-official</pre>
-          <button type="button" data-copy="cmd-runpod-skills">Copy</button>
-        </article>
-        <article class="install">
-          <h4>RunPod CLI</h4>
-          <pre id="cmd-runpod-cli">brew install runpod/runpodctl/runpodctl</pre>
-          <button type="button" data-copy="cmd-runpod-cli">Copy</button>
-          <pre id="cmd-runpod-script">curl -sSL https://cli.runpod.net | bash</pre>
-          <button type="button" data-copy="cmd-runpod-script">Copy</button>
-        </article>
-        <article class="install">
-          <h4>fal.ai CLI and skills</h4>
-          <pre id="cmd-fal-cli">curl https://genmedia.sh/install -fsS | bash
+
+      <section class="work">
+        <header>
+          <h2 id="step-title">Find footage you already have</h2>
+          <span id="step-help" class="help">Look through this brand’s library before making a new clip.</span>
+        </header>
+        <form id="form">
+          <label id="notes-label" class="blank wide">
+            <span class="caps label">Notes file on this computer</span>
+            <input id="notes" name="notes" value="fixtures/briefs/aether-morning.md">
+            <span class="hint">--file</span>
+          </label>
+          <label id="footage-label" class="blank wide">
+            <span class="caps label">What footage do you need?</span>
+            <input id="footage" name="footage" value="morning kitchen, scooping powder, mug by the window">
+            <span class="hint plain">Everyday words. The search matches them to clips already on file.</span>
+          </label>
+          <label id="seconds-label" class="blank">
+            <span class="caps label">Clip length</span>
+            <input id="seconds" name="seconds" type="number" min="1" value="5">
+            <span class="hint">seconds</span>
+          </label>
+          <label id="backend-label" class="blank">
+            <span class="caps label">How it would be made</span>
+            <select id="backend">
+              <option value="runpod-h3">RunPod, self-hosted</option>
+              <option value="fal-ai">fal.ai</option>
+              <option value="minimax-h3-api">MiniMax API</option>
+            </select>
+            <span class="hint" id="backend-hint">--backend runpod-h3</span>
+          </label>
+          <label id="size-label" class="blank">
+            <span class="caps label">Picture size</span>
+            <select id="size">
+              <option value="768P">Standard</option>
+              <option value="2K">High</option>
+            </select>
+            <span class="hint" id="size-hint">--resolution 768P</span>
+          </label>
+        </form>
+
+        <div class="actions" id="actions">
+          <div class="action side" id="try-stop-wrap" hidden>
+            <button id="try-stop" class="key outline" type="button">Try it — it should stop</button>
+            <span class="engraved">runs without --confirm · exit 2</span>
+          </div>
+          <div class="action center" id="run-wrap">
+            <button id="run" class="key ink" type="button">Search the library</button>
+            <span class="engraved" id="run-hint">runs jeremai search-broll</span>
+          </div>
+          <div class="action center" id="open-sheet-wrap" hidden>
+            <button id="open-sheet" class="key gate" type="button">Confirm and make the clip</button>
+            <span class="engraved">runs --confirm · opens the sheet first</span>
+          </div>
+          <div class="action side" id="copy-wrap">
+            <button id="copy" class="key" type="button">Copy instructions</button>
+            <span class="engraved">copy runs nothing</span>
+          </div>
+        </div>
+
+        <div class="ai-row" id="ai-row" hidden>
+          <label id="model-label" class="blank" hidden>
+            <span class="caps label">Model</span>
+            <select id="model"></select>
+          </label>
+          <button id="fill" class="key" type="button" hidden>Fill with AI</button>
+        </div>
+
+        <section id="keys" hidden>
+          <p class="note">A saved key stays on this computer, in <code>.env</code>. This desk does not show it again, and it still does not call RunPod, fal, or MiniMax.</p>
+          <form id="keys-form"></form>
+          <div id="model-list"></div>
+          <h3 class="section">Install on this computer</h3>
+          <p class="note">Official commands. Copy them. The desk does not run them.</p>
+          <div class="installs">
+            <article class="install">
+              <h4>RunPod skills</h4>
+              <pre id="cmd-runpod-skills">npx skills add runpod/runpod-plugins-official</pre>
+              <button class="key small" type="button" data-copy="cmd-runpod-skills">Copy</button>
+            </article>
+            <article class="install">
+              <h4>RunPod CLI</h4>
+              <pre id="cmd-runpod-cli">brew install runpod/runpodctl/runpodctl</pre>
+              <button class="key small" type="button" data-copy="cmd-runpod-cli">Copy</button>
+              <pre id="cmd-runpod-script">curl -sSL https://cli.runpod.net | bash</pre>
+              <button class="key small" type="button" data-copy="cmd-runpod-script">Copy</button>
+            </article>
+            <article class="install">
+              <h4>fal.ai CLI and skills</h4>
+              <pre id="cmd-fal-cli">curl https://genmedia.sh/install -fsS | bash
 genmedia setup
 genmedia init</pre>
-          <button type="button" data-copy="cmd-fal-cli">Copy</button>
-          <pre id="cmd-fal-app">pip install fal
+              <button class="key small" type="button" data-copy="cmd-fal-cli">Copy</button>
+              <pre id="cmd-fal-app">pip install fal
 fal auth login</pre>
-          <button type="button" data-copy="cmd-fal-app">Copy</button>
-        </article>
+              <button class="key small" type="button" data-copy="cmd-fal-app">Copy</button>
+            </article>
+          </div>
+        </section>
       </section>
-      <p id="sentence"></p>
-      <pre id="script" hidden></pre>
-      <button id="toggle-terminal" type="button">Show the terminal output</button>
-      <pre id="terminal" hidden></pre>
+
+      <section class="well result" id="result" data-state="idle" aria-live="polite">
+        <span class="lamp" id="result-lamp" data-lamp="off"></span>
+        <span class="caps status" id="result-status">Nothing run yet</span>
+        <button id="toggle-terminal" class="key small" type="button">Show the terminal output</button>
+        <p id="sentence">Pick a step and press its key. The CLI decides; this desk repeats what it said.</p>
+        <pre id="script" hidden></pre>
+        <pre id="terminal" hidden></pre>
+      </section>
     </main>
-    <aside>
-      <p class="eyebrow">Instructions to paste</p>
+
+    <aside class="ticket">
+      <header>
+        <span class="caps label eyebrow">Instructions to paste</span>
+        <button id="ticket-copy" class="key small" type="button">Copy</button>
+      </header>
       <pre id="instruction"></pre>
+      <div class="foot">
+        <div class="row"><span>step</span><b id="ticket-step">Find footage</b></div>
+        <div class="row"><span>brand</span><b id="ticket-brand">aether-wellness</b></div>
+        <div class="row"><span>quote</span><b id="ticket-quote">—</b></div>
+        <div class="row"><span>charged</span><b id="ticket-charged">$0.00</b></div>
+        <span>Copy runs nothing. Paste this into the agent already open in your terminal.</span>
+      </div>
     </aside>
   </div>
+
+  <div class="dock">
+    <button id="agent-open" class="key ink" type="button" aria-controls="agent" aria-expanded="false">Agent</button>
+    <section id="agent" class="agent" hidden aria-label="Desk agent">
+      <header>
+        <span class="lamp" id="agent-lamp" data-lamp="off"></span>
+        <span class="caps label">Desk agent</span>
+        <span class="caps engraved" id="agent-status">Ready</span>
+        <button id="agent-close" class="key small" type="button">Close</button>
+      </header>
+      <div class="well agent-log" id="agent-log" aria-live="polite">
+        <p class="bot">I can explain any step, fill the blanks, open a step, or press a key that spends nothing. I never make a clip, approve a script, or run the practice job.</p>
+      </div>
+      <div class="agent-nokey" id="agent-nokey" hidden>
+        <p>Add an OpenRouter key on the Keys tab.</p>
+        <button id="agent-go-keys" class="key small" type="button">Open Keys</button>
+      </div>
+      <div class="chips" id="agent-chips">
+        <button class="key small" type="button" data-ask="What should I do next?">What next?</button>
+        <button class="key small" type="button" data-ask="Why did the last step stop?">Why did it stop?</button>
+        <button class="key small" type="button" data-ask="Fill in the blanks on this step for me.">Fill this step</button>
+        <button class="key small" type="button" data-ask="How much of the budget is left?">Budget left?</button>
+      </div>
+      <form id="agent-form" class="agent-form">
+        <label class="blank">
+          <span class="caps label">Model</span>
+          <select id="agent-model"></select>
+        </label>
+        <label class="blank wide">
+          <span class="caps label">Ask the agent</span>
+          <textarea id="agent-input" rows="2" placeholder="Ask about a step, or tell me what to fill in."></textarea>
+        </label>
+        <div class="agent-actions">
+          <span class="engraved">The key stays on this computer. The agent presses keys that spend nothing.</span>
+          <button id="agent-send" class="key ink" type="submit">Send</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
   <dialog id="new-brand">
     <form id="new-brand-form">
       <h2>New brand</h2>
-      <label>Brand name
+      <label class="blank">
+        <span class="caps label">Brand name</span>
         <input id="new-name" name="name" required>
       </label>
-      <label>Product
+      <label class="blank">
+        <span class="caps label">Product</span>
         <input id="new-product" name="product" required>
       </label>
-      <label>Budget
+      <label class="blank">
+        <span class="caps label">Budget</span>
         <input id="new-budget" name="budget" type="number" min="0.01" step="0.01" required>
+        <span class="hint">budget_cap_usd · hard stop at 100%</span>
       </label>
-      <label>Claims this brand may say
+      <label class="blank">
+        <span class="caps label">Claims this brand may say</span>
         <textarea id="new-claims" name="claims" rows="5" required></textarea>
-        <span class="hint">One claim per line.</span>
+        <span class="hint plain">One claim per line.</span>
       </label>
       <div class="actions">
-        <button type="submit">Create this brand</button>
-        <button id="new-brand-close" type="button">Close</button>
+        <button class="key ink" type="submit">Create this brand</button>
+        <button id="new-brand-close" class="key" type="button">Close</button>
       </div>
     </form>
   </dialog>
+
   <dialog id="sheet">
-    <p id="sheet-sentence"></p>
-    <p>This practice clip records $0.</p>
-    <label><input id="count-quote" type="checkbox"> Count this quote against the budget (still no real charge).</label>
-    <div class="actions">
-      <button id="sheet-confirm" type="button">Confirm</button>
-      <button id="sheet-copy" type="button">Copy instructions</button>
-      <button id="sheet-close" type="button">Close</button>
+    <div class="sheet-body">
+      <h2>Confirm and make the clip</h2>
+      <p id="sheet-sentence"></p>
+      <p class="fixed">This practice clip records $0.</p>
+      <label class="check"><input id="count-quote" type="checkbox"> <span>Count this quote against the budget (still no real charge).</span></label>
+      <div class="actions">
+        <button id="sheet-confirm" class="key gate" type="button">Confirm</button>
+        <button id="sheet-copy" class="key" type="button">Copy instructions</button>
+        <button id="sheet-close" class="key" type="button">Close</button>
+      </div>
     </div>
   </dialog>
   <script type="module" src="/desk.js"></script>

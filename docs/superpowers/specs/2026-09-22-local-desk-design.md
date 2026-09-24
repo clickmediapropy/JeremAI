@@ -157,3 +157,11 @@ Automated tests cover the argv builder, the headlines, and the templates. One au
 ## Out of scope
 
 Posting an ad, media buying, renting a GPU, and calling fal or MiniMax. `JEREMAI_ALLOW_SPEND` stays unused. No accounts, no deploy, no second database.
+
+## 2026-09-24 redesign
+
+The page was rebuilt as an instrument (Rams / Braun logic): a transport-style stepper across the top with a lamp and a monospace reading per step, three recessed readouts (budget gauge with an 80% tick, library counts, gate lamp), the work panel with the CLI flag engraved under each blank and each key, a result well that names the exit code, and the instruction rendered as a perforated ticket. Behaviour, sentences, ids, and the confirm sheet are unchanged. Design spec and the three candidate mockups live in `docs/design/desk-redesign/` (`spec.md`, `a-roulette.html`, `b-reference.html`, `c-designer.html`; C was chosen). Tokens and components are in `src/desk/public/desk.css`.
+
+## 2026-09-24 agent widget and small desktops
+
+The page now fits 1280x720 laptops (no horizontal overflow; the result well may start below the fold) through two extra CSS tiers (`max-width: 1366px`, `max-height: 760px`). A floating **Desk agent** (bottom right) talks to OpenRouter through `POST /api/agent` with the key saved on the Keys tab and the model chosen for Fill with AI; the key never reaches the browser. The agent can explain steps, open a step, fill blanks, and press keys that spend nothing: `set-up`, `add-notes`, `find-footage`, `write-script`, `check-price`, `rough-cut`, `spending` (the allowlist in `src/desk/public/agent-tools.js`, shared by server and page). It cannot make a clip, approve a script, run the practice job, or touch keys; those tool calls are dropped server-side and refused again on the page. Runs go through the same runner and lock as a human key press.

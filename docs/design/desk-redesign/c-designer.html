@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JeremAI · Desk — Make the clip</title>
+<meta name="viewport" content="width=1440">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --chassis: #E9E7E2; --panel: #F4F3EF; --well: #DDDAD3; --line: #C9C5BC; --paper: #FBFAF7;
+    --ink: #1B1B1A; --muted: #6B6864; --muted-well: #5C5955;
+    --signal: #D8641C; --signal-text: #9E440A;
+    --sans: "Archivo", "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    width: 1440px; height: 900px; overflow: hidden;
+    background: var(--chassis); color: var(--ink);
+    font-family: var(--sans); font-size: 14px; line-height: 1.4;
+    font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1;
+    display: grid; grid-template-rows: 48px auto 1fr; gap: 12px; padding: 0 16px 16px;
+  }
+  .caps { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+  .mono { font-family: var(--mono); }
+  .lamp { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink); flex: none; }
+  .lamp.done { background: var(--ink); }
+  .lamp.current { background: var(--signal); border-color: var(--signal); }
+  .lamp.pending { background: transparent; }
+
+  /* Keys (pressable) */
+  .key {
+    font-family: var(--sans); font-size: 14px; font-weight: 500; color: var(--ink);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 5px;
+    padding: 0 16px; height: 40px; cursor: pointer;
+    box-shadow: 0 2px 0 var(--line); position: relative; top: 0;
+  }
+  .key:active { top: 2px; box-shadow: 0 0 0 var(--line); }
+  .key.outline { background: transparent; border-color: var(--ink); box-shadow: 0 2px 0 var(--ink); }
+  .key.ink { background: var(--ink); color: var(--panel); border-color: var(--ink); box-shadow: 0 2px 0 #000; }
+  .key.gate { background: var(--signal); border-color: #B4500F; box-shadow: 0 2px 0 #B4500F; height: 56px; font-size: 16px; font-weight: 600; }
+  .key.small { height: 28px; padding: 0 10px; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+
+  /* Wells (recessed) */
+  .well { background: var(--well); border-radius: 5px; box-shadow: inset 0 1px 2px rgba(27,27,26,.25), inset 0 0 0 1px var(--line); }
+  .well .label { color: var(--muted-well); }
+
+  /* Top strip */
+  .strip { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+  .strip .left { display: flex; align-items: baseline; gap: 20px; }
+  .strip .engraved { color: var(--muted); }
+  .strip .brand { font-size: 15px; font-weight: 600; }
+  .strip .brand span { color: var(--muted); font-weight: 400; }
+  .strip .right { display: flex; align-items: center; gap: 10px; }
+  select, input {
+    font-family: var(--sans); font-size: 14px; color: var(--ink); height: 36px;
+    background: var(--well); border: 1px solid var(--line); border-radius: 5px; padding: 0 10px;
+    box-shadow: inset 0 1px 2px rgba(27,27,26,.2); appearance: none; -webkit-appearance: none;
+  }
+  select { padding-right: 28px; background-image: linear-gradient(var(--ink),var(--ink)), linear-gradient(var(--ink),var(--ink)); background-size: 7px 1.5px, 7px 1.5px; background-repeat: no-repeat; background-position: calc(100% - 15px) 50%, calc(100% - 10px) 50%; }
+  .strip select { height: 32px; }
+
+  /* Transport stepper */
+  .transport { display: grid; grid-template-columns: repeat(9, 1fr) 24px repeat(2, 1fr); gap: 6px; }
+  .tkey {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 5px;
+    padding: 10px 12px 9px; box-shadow: 0 2px 0 var(--line); text-align: left; cursor: pointer; height: 84px;
+  }
+  .tkey .label { font-size: 12px; font-weight: 500; line-height: 1.2; }
+  .tkey .reading { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; color: var(--muted); margin-top: auto; }
+  .tkey.current { border-color: var(--ink); box-shadow: 0 2px 0 var(--ink); }
+  .tkey.current .reading { color: var(--signal-text); }
+  .tkey.apart { background: var(--chassis); }
+  .gap { border-left: 1px solid var(--line); margin: 8px 11px; }
+
+  /* Main grid */
+  .main { display: grid; grid-template-columns: 1fr 420px; gap: 16px; min-height: 0; }
+  .console { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+
+  .readouts { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 12px; }
+  .readout { padding: 12px 14px 12px; height: 104px; display: flex; flex-direction: column; }
+  .readout .value { font-family: var(--mono); font-size: 15px; letter-spacing: 0.04em; margin-top: auto; text-transform: uppercase; }
+  .readout .value.signal { color: var(--signal-text); display: flex; align-items: center; gap: 10px; }
+  .readout .value .big { font-size: 22px; font-weight: 500; letter-spacing: 0; }
+  .readout .value .dim { color: var(--muted-well); font-size: 12px; }
+  .gauge { position: relative; height: 14px; margin: 10px 0 6px; }
+  .gauge .track { position: absolute; left: 0; right: 0; top: 4px; height: 6px; background: var(--panel); border-radius: 2px; box-shadow: inset 0 0 0 1px var(--line); }
+  .gauge .tick { position: absolute; top: 0; width: 1px; height: 14px; background: var(--muted-well); }
+  .gauge .tick.warn { background: var(--signal); width: 2px; }
+  .gauge .needle { position: absolute; top: -3px; left: 0; width: 3px; height: 20px; background: var(--ink); border-radius: 1px; }
+  .gauge-scale { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--muted-well); }
+
+  /* Work panel */
+  .work { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 18px 20px 18px; flex: none; display: flex; flex-direction: column; gap: 14px; }
+  .work header { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+  .work h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .work header .help { color: var(--muted); font-size: 14px; }
+  .blanks { display: grid; grid-template-columns: 160px 1fr 1fr; gap: 12px; }
+  .blank { display: flex; flex-direction: column; gap: 6px; }
+  .blank .label { color: var(--muted); }
+  .blank .hint { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 0.06em; }
+  .blank select, .blank input { width: 100%; font-family: var(--mono); }
+  .actions { display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 12px; align-items: start; }
+  .action { display: flex; flex-direction: column; gap: 6px; }
+  .action .key { width: 100%; }
+  .action .engraved { font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em; color: var(--muted); text-align: center; }
+  .action.center { align-self: stretch; }
+  .action.side { padding-top: 8px; }
+
+  /* Result readout */
+  .result { flex: 1; min-height: 0; padding: 14px 16px 16px; display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto 1fr; column-gap: 12px; row-gap: 10px; align-items: start; }
+  .result .lamp { width: 12px; height: 12px; margin-top: 3px; }
+  .result .status { color: var(--signal-text); }
+  .result .sentence { grid-column: 2 / 4; font-size: 16px; line-height: 1.45; }
+  .result .terminal { grid-column: 2 / 4; display: none; align-self: stretch; min-height: 0; overflow: hidden; font-family: var(--mono); font-size: 12px; line-height: 1.55; background: var(--ink); color: #DDDAD3; padding: 12px 14px; border-radius: 4px; white-space: pre-wrap; }
+  .result .terminal .dim { color: #8E8A82; }
+  .result.open .terminal { display: block; }
+  .result .toggle-on, .result.open .toggle-off { display: none; }
+  .result.open .toggle-on { display: inline; }
+
+  /* Ticket */
+  .ticket { background: var(--paper); border: 1px solid var(--line); border-top: 2px dashed var(--line); border-radius: 0 0 6px 6px; padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+  .ticket header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+  .ticket header .label { color: var(--muted); }
+  .ticket pre { font-family: var(--mono); font-size: 13px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+  .ticket .foot { margin-top: auto; border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 14px; }
+  .ticket .foot .row { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; }
+  .ticket .foot .row b { color: var(--ink); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<!-- Top strip -->
+<header class="strip">
+  <div class="left">
+    <span class="caps engraved">Jeremai · Desk</span>
+    <span class="brand">Aether Wellness <span>/ Aether Daily Mineral</span></span>
+  </div>
+  <div class="right">
+    <label class="caps engraved" for="brand">Switch brand</label>
+    <select id="brand"><option>Aether Wellness</option></select>
+    <button class="key small" type="button">New brand</button>
+  </div>
+</header>
+
+<!-- Transport-style stepper -->
+<nav class="transport" aria-label="Steps">
+  <button class="tkey" type="button"><span class="lamp done"></span><span class="label">Set up</span><span class="reading">ready</span></button>
+  <button class="tkey" type="button"><span class="lamp done"></span><span class="label">Add notes</span><span class="reading">on file</span></button>
+  <button class="tkey" type="button"><span class="lamp done"></span><span class="label">Find footage</span><span class="reading">6·1</span></button>
+  <button class="tkey" type="button"><span class="lamp done"></span><span class="label">Write the script</span><span class="reading">passed</span></button>
+  <button class="tkey" type="button"><span class="lamp done"></span><span class="label">Approve the script</span><span class="reading">approved</span></button>
+  <button class="tkey" type="button"><span class="lamp done"></span><span class="label">Check the price</span><span class="reading">$0.17</span></button>
+  <button class="tkey current" type="button" aria-current="step"><span class="lamp current"></span><span class="label">Make the clip</span><span class="reading">practice $0</span></button>
+  <button class="tkey" type="button"><span class="lamp pending"></span><span class="label">Build the rough cut</span><span class="reading">—</span></button>
+  <button class="tkey" type="button"><span class="lamp pending"></span><span class="label">See spending</span><span class="reading">$0.00</span></button>
+  <span class="gap" aria-hidden="true"></span>
+  <button class="tkey apart" type="button"><span class="lamp pending"></span><span class="label">Practice run</span><span class="reading">—</span></button>
+  <button class="tkey apart" type="button"><span class="lamp pending"></span><span class="label">Keys</span><span class="reading">not set</span></button>
+</nav>
+
+<div class="main">
+  <!-- Console -->
+  <section class="console">
+    <div class="readouts">
+      <div class="well readout">
+        <span class="caps label">Budget</span>
+        <div class="gauge">
+          <div class="track"></div>
+          <span class="tick" style="left:0"></span>
+          <span class="tick" style="left:20%"></span>
+          <span class="tick" style="left:40%"></span>
+          <span class="tick" style="left:60%"></span>
+          <span class="tick warn" style="left:80%"></span>
+          <span class="tick" style="left:calc(100% - 1px)"></span>
+          <span class="needle" aria-label="0% spent"></span>
+        </div>
+        <div class="gauge-scale"><span>$0</span><span>$5</span><span>$10</span><span>$15</span><span style="color:var(--signal-text)">$20 · 80%</span><span>$25</span></div>
+        <div class="value">$0.00 / $25.00 <span class="dim">· Nothing spent yet</span></div>
+      </div>
+      <div class="well readout">
+        <span class="caps label">Library</span>
+        <div class="value"><span class="big">6</span> fine <span class="dim">·</span> <span class="big">1</span> held back</div>
+      </div>
+      <div class="well readout">
+        <span class="caps label">Gate</span>
+        <div class="value signal"><span class="lamp current"></span>Confirm required</div>
+      </div>
+    </div>
+
+    <div class="work">
+      <header>
+        <h1>Make the clip</h1>
+        <span class="help">A practice clip. Confirmation is separate.</span>
+      </header>
+
+      <div class="blanks">
+        <div class="blank">
+          <label class="caps label" for="seconds">Clip length</label>
+          <input id="seconds" class="mono" type="number" value="5" min="1" aria-describedby="sec-unit">
+          <span id="sec-unit" class="hint">seconds</span>
+        </div>
+        <div class="blank">
+          <label class="caps label" for="backend">How it would be made</label>
+          <select id="backend">
+            <option>RunPod, self-hosted</option>
+            <option>fal.ai</option>
+            <option>MiniMax API</option>
+          </select>
+          <span class="hint">--backend runpod-h3</span>
+        </div>
+        <div class="blank">
+          <label class="caps label" for="res">Picture size</label>
+          <select id="res">
+            <option>Standard</option>
+            <option>High</option>
+          </select>
+          <span class="hint">--resolution 768P</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="action side">
+          <button class="key outline" type="button">Try it — it should stop</button>
+          <span class="engraved">runs without --confirm · exit 2</span>
+        </div>
+        <div class="action center">
+          <button class="key gate" type="button">Confirm and make the clip</button>
+          <span class="engraved">runs --confirm · opens the sheet first</span>
+        </div>
+        <div class="action side">
+          <button class="key" type="button">Copy instructions</button>
+          <span class="engraved">copy runs nothing</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="well result open" id="result">
+      <span class="lamp current"></span>
+      <span class="caps status">Stopped on purpose · Exit 2</span>
+      <button class="key small" type="button" onclick="document.getElementById('result').classList.toggle('open')"><span class="toggle-off">Show the terminal output</span><span class="toggle-on">Hide the terminal output</span></button>
+      <p class="sentence">Stopped on purpose. Making a clip needs a confirmation. Nothing was spent.</p>
+      <div class="terminal"><span class="dim">$</span> pnpm jeremai generate --client aether-wellness --seconds 5 --backend runpod-h3 --resolution 768P
+<span class="dim">stderr</span>  Stopped on purpose. Making a clip needs a confirmation. Nothing was spent.
+<span class="dim">exit</span>    2</div>
+    </div>
+  </section>
+
+  <!-- Ticket -->
+  <aside class="ticket">
+    <header>
+      <span class="caps label">Instructions to paste</span>
+      <button class="key small" type="button">Copy</button>
+    </header>
+<pre>You are working in the JeremAI repo for Aether Wellness (aether-wellness).
+Use pnpm jeremai. Do not post an ad. Do not call RunPod, fal, or MiniMax. Clips in this build are practice clips.
+
+Run `pnpm jeremai generate --client aether-wellness --seconds 5 --backend runpod-h3 --resolution 768P` with no confirm flag. It should stop. Report that stop. Do not pass `--confirm`. Do not publish.</pre>
+    <div class="foot">
+      <div class="row"><span>step</span><b>Make the clip · unconfirmed</b></div>
+      <div class="row"><span>brand</span><b>aether-wellness</b></div>
+      <div class="row"><span>quote</span><b>$0.17 for 5 seconds</b></div>
+      <div class="row"><span>charged</span><b>$0.00</b></div>
+      <span>Copy runs nothing. Paste this into the agent already open in your terminal.</span>
+    </div>
+  </aside>
+</div>
+
+</body>
+</html>
+<!-- form came from: the confirm-before-spend gate and the budget meter — a CLI whose steps are pressable keys on a tape deck, whose readings are dials, and whose one orange control is the only thing that could spend. -->

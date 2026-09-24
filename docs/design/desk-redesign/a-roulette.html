@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JeremAI desk · local — Make the clip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0E0F12; --card: #15171B; --card-2: #1B1E24;
+    --line: rgba(255,255,255,0.08); --line-2: rgba(255,255,255,0.14);
+    --text: #ECEAE4; --muted: #8B8F98; --dim: #5E626B;
+    --accent: #6E7BE0; --accent-soft: rgba(110,123,224,0.14);
+    --warm: #D9A441; --warm-soft: rgba(217,164,65,0.12);
+    --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+    --r: 12px; --r-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    width: 1440px; height: 900px; overflow: hidden;
+    background: var(--bg); color: var(--text);
+    font: 400 14px/1.45 var(--sans); -webkit-font-smoothing: antialiased;
+    display: grid; grid-template-rows: 56px 1fr;
+  }
+  .mono { font-family: var(--mono); font-feature-settings: "tnum"; }
+  h1, h2, h3 { font-weight: 600; letter-spacing: -0.02em; }
+  button, select { font: inherit; color: inherit; cursor: pointer; }
+  select { appearance: none; -webkit-appearance: none; }
+
+  /* ---------- top bar ---------- */
+  .top {
+    height: 56px; padding: 0 20px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 20px;
+  }
+  .wordmark { font-weight: 600; letter-spacing: -0.02em; font-size: 15px; white-space: nowrap; }
+  .wordmark span { color: var(--muted); font-weight: 400; }
+  .brand { display: flex; align-items: center; gap: 8px; margin-left: 8px; }
+  .brand .who { display: flex; flex-direction: column; line-height: 1.2; margin-right: 6px; }
+  .brand .who b { font-weight: 500; font-size: 14px; }
+  .brand .who small { color: var(--muted); font-size: 12px; }
+  .sel {
+    background: var(--card-2); border: 1px solid var(--line-2); border-radius: var(--r-sm);
+    height: 32px; padding: 0 30px 0 12px; font-size: 13px; color: var(--text); position: relative;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 15px) 14px, calc(100% - 10px) 14px; background-size: 5px 5px; background-repeat: no-repeat;
+  }
+  .btn {
+    height: 32px; padding: 0 12px; border-radius: var(--r-sm); border: 1px solid var(--line-2);
+    background: var(--card-2); color: var(--text); font-size: 13px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+  .btn.ghost:hover { color: var(--text); border-color: var(--line); }
+  .meter { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .meter .bar { width: 160px; height: 6px; border-radius: 3px; background: var(--card-2); border: 1px solid var(--line); position: relative; overflow: hidden; }
+  .meter .bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--accent); }
+  .meter .bar::after { content: ""; position: absolute; left: 80%; top: -1px; bottom: -1px; width: 1px; background: var(--warm); opacity: 0.7; }
+  .meter .num { font-size: 13px; color: var(--text); }
+  .meter .num span { color: var(--muted); }
+  .meter .note { font-size: 12px; color: var(--muted); }
+
+  /* ---------- 3-col body ---------- */
+  .body { display: grid; grid-template-columns: 240px 1fr 380px; min-height: 0; }
+
+  /* rail */
+  .rail { border-right: 1px solid var(--line); padding: 16px 8px; display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+  .rail .cap { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 8px 8px; }
+  .step {
+    display: grid; grid-template-columns: 14px 1fr auto; align-items: center; gap: 8px;
+    height: 38px; padding: 0 8px; border-radius: var(--r-sm); font-size: 14px; color: var(--text); white-space: nowrap;
+  }
+  .step .dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid var(--dim); justify-self: center; }
+  .step.done .dot { background: var(--accent); border-color: var(--accent); }
+  .step.current { background: var(--accent-soft); box-shadow: inset 0 0 0 1px rgba(110,123,224,0.35), inset 0 0 24px rgba(110,123,224,0.08); }
+  .step.current .dot { border-color: var(--warm); box-shadow: 0 0 0 3px var(--warm-soft); }
+  .step.pending { color: var(--muted); }
+  .step .read { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .step.current .read, .step.done .read { color: var(--text); }
+  .step.current .read { color: var(--warm); }
+  .rail hr { border: 0; border-top: 1px solid var(--line); margin: 10px 10px; }
+
+  /* center */
+  .center { padding: 16px 20px; display: grid; grid-template-rows: auto auto 1fr; gap: 12px; min-height: 0; overflow: hidden; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); }
+  .bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .stat { padding: 14px 16px; min-height: 84px; display: flex; flex-direction: column; gap: 6px; }
+  .stat .k { font-size: 12px; color: var(--muted); }
+  .stat .v { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; }
+  .stat .v .sep { color: var(--dim); margin: 0 6px; }
+  .stat .sub { font-size: 12px; color: var(--accent); }
+
+  .work { padding: 22px 24px; background: var(--card-2); border-color: var(--line-2); box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), inset 0 0 40px rgba(217,164,65,0.05); display: flex; flex-direction: column; gap: 16px; }
+  .work .head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+  .work h2 { font-size: 22px; line-height: 1.2; }
+  .work .help { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .work .tag { font-family: var(--mono); font-size: 12px; color: var(--warm); border: 1px solid rgba(217,164,65,0.35); border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+  .blanks { display: grid; grid-template-columns: 0.8fr 2.2fr 1fr; gap: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .field .in {
+    height: 38px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--bg);
+    display: flex; align-items: center; padding: 0 12px; font-size: 14px; color: var(--text);
+  }
+  .field .in.mono { font-size: 13px; }
+  .field .in .unit { margin-left: auto; color: var(--muted); font-size: 12px; }
+  .seg { display: flex; gap: 0; border: 1px solid var(--line-2); border-radius: var(--r-sm); overflow: hidden; height: 38px; background: var(--bg); }
+  .seg span { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--muted); border-right: 1px solid var(--line); }
+  .seg span:last-child { border-right: 0; }
+  .seg span.on { background: var(--card-2); color: var(--text); font-weight: 500; }
+  .actions { display: flex; align-items: center; gap: 10px; padding-top: 4px; }
+  .btn.lg { height: 40px; padding: 0 16px; font-size: 14px; }
+  .btn.gate {
+    background: var(--warm-soft); border: 1px solid var(--warm); color: var(--warm); font-weight: 600;
+    box-shadow: inset 0 0 0 1px rgba(217,164,65,0.25), 0 0 0 4px rgba(217,164,65,0.06);
+  }
+  .btn.gate .lock { width: 10px; height: 8px; border: 1.5px solid var(--warm); border-radius: 2px; position: relative; margin-top: 3px; }
+  .btn.gate .lock::before { content: ""; position: absolute; left: 1px; right: 1px; top: -6px; height: 6px; border: 1.5px solid var(--warm); border-bottom: 0; border-radius: 4px 4px 0 0; }
+  .actions .ai { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .actions .ai .sel { height: 32px; }
+
+  .result { padding: 16px 20px 16px 22px; position: relative; display: flex; flex-direction: column; gap: 8px; min-height: 0; }
+  .result::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px; border-radius: 2px; background: var(--warm); }
+  .result .state { font-family: var(--mono); font-size: 12px; color: var(--warm); display: flex; align-items: center; gap: 10px; }
+  .result .state .exit { color: var(--muted); }
+  .result .line { font-size: 16px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.4; }
+  .result details { margin-top: 2px; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .result details::details-content { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .result details[open] pre { flex: 1; overflow: auto; }
+  .result summary { list-style: none; cursor: pointer; font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 8px; }
+  .result summary::-webkit-details-marker { display: none; }
+  .result summary::before { content: ""; width: 5px; height: 5px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(-45deg); transition: transform .15s; }
+  .result details[open] summary::before { transform: rotate(45deg); }
+  .result pre { margin-top: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px; font: 12px/1.6 var(--mono); color: var(--muted); white-space: pre-wrap; }
+  .result pre b { color: var(--text); font-weight: 500; }
+
+  /* right drawer */
+  .drawer { border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; background: #101216; }
+  .drawer .dh { height: 56px; padding: 0 16px 0 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; }
+  .drawer .dh h3 { font-size: 14px; }
+  .drawer .dh small { display: block; font-size: 12px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+  .drawer .btn.copy { background: var(--accent); border-color: var(--accent); color: #0E0F12; }
+  .drawer pre {
+    flex: 1; padding: 20px; margin: 0; font: 13px/1.7 var(--mono); color: var(--text);
+    white-space: pre-wrap; word-break: break-word; overflow: hidden;
+  }
+  .drawer pre .c { color: var(--muted); }
+  .drawer pre .cmd { color: var(--warm); }
+  .drawer .df { padding: 12px 20px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wordmark">JeremAI desk <span>· local</span></div>
+  <div class="brand">
+    <div class="who"><b>Aether Wellness</b><small>Aether Daily Mineral</small></div>
+    <select class="sel" aria-label="Switch brand"><option>Aether Wellness</option></select>
+    <button class="btn">New brand</button>
+  </div>
+  <div class="meter" aria-label="Budget">
+    <div class="bar"><i></i></div>
+    <div class="num mono">$0.00 <span>/ $25.00</span></div>
+    <div class="note">Nothing spent yet</div>
+  </div>
+</header>
+
+<div class="body">
+
+  <nav class="rail" aria-label="Steps">
+    <div class="cap">Steps</div>
+    <div class="step done"><i class="dot"></i><span>Set up</span><span class="read">ready</span></div>
+    <div class="step done"><i class="dot"></i><span>Add notes</span><span class="read">saved</span></div>
+    <div class="step done"><i class="dot"></i><span>Find footage</span><span class="read">6 · 1</span></div>
+    <div class="step done"><i class="dot"></i><span>Write the script</span><span class="read">passed</span></div>
+    <div class="step done"><i class="dot"></i><span>Approve the script</span><span class="read">done</span></div>
+    <div class="step done"><i class="dot"></i><span>Check the price</span><span class="read">$0.17</span></div>
+    <div class="step current" aria-current="step"><i class="dot"></i><span>Make the clip</span><span class="read">practice</span></div>
+    <div class="step pending"><i class="dot"></i><span>Build the rough cut</span><span class="read">—</span></div>
+    <div class="step pending"><i class="dot"></i><span>See spending</span><span class="read">$0.00</span></div>
+    <hr>
+    <div class="step pending"><i class="dot"></i><span>Practice run</span><span class="read">—</span></div>
+    <div class="step pending"><i class="dot"></i><span>Keys and install</span><span class="read">not set</span></div>
+  </nav>
+
+  <main class="center">
+    <div class="bento">
+      <div class="card stat"><span class="k">Library</span><span class="v">6 fine<span class="sep">·</span>1 held back</span></div>
+      <div class="card stat"><span class="k">Script</span><span class="v">written<span class="sep">·</span>approved</span><span class="sub">claims check passed</span></div>
+      <div class="card stat"><span class="k">Last quote</span><span class="v mono">$0.17<span class="sep">·</span>5s<span class="sep">·</span>RunPod</span></div>
+    </div>
+
+    <section class="card work" aria-labelledby="step-title">
+      <div class="head">
+        <div>
+          <h2 id="step-title">Make the clip</h2>
+          <p class="help">A practice clip. Confirmation is separate.</p>
+        </div>
+        <span class="tag">gate · exit 2 until confirmed</span>
+      </div>
+      <div class="blanks">
+        <div class="field"><label>Clip length</label><div class="in mono">5<span class="unit">seconds</span></div></div>
+        <div class="field"><label>How it would be made</label>
+          <div class="seg"><span class="on">RunPod, self-hosted</span><span>fal.ai</span><span>MiniMax API</span></div></div>
+        <div class="field"><label>Picture size</label>
+          <div class="seg"><span class="on">Standard</span><span>High</span></div></div>
+      </div>
+      <div class="actions">
+        <button class="btn lg">Try it — it should stop</button>
+        <button class="btn lg gate"><i class="lock"></i>Confirm and make the clip</button>
+        <button class="btn lg ghost">Copy instructions</button>
+        <div class="ai">
+          <select class="sel" aria-label="Model"><option>Model</option></select>
+          <button class="btn">Fill with AI</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card result" aria-live="polite">
+      <div class="state">Stopped on purpose <span class="exit">exit 2</span></div>
+      <p class="line">Stopped on purpose. Making a clip needs a confirmation. Nothing was spent.</p>
+      <details open>
+        <summary>Show the terminal output</summary>
+        <pre><b>$ pnpm jeremai generate --client aether-wellness --seconds 5 --backend runpod-h3 --resolution 768P</b>
+generate: --confirm is missing. Refusing to make a clip.
+about $0.17 for 5 seconds · $0.00 of $25.00 is spent
+exit 2</pre>
+      </details>
+    </section>
+  </main>
+
+  <aside class="drawer" aria-label="Instructions to paste">
+    <div class="dh">
+      <h3>Instructions to paste<small>Copy runs nothing. Paste into the agent in your terminal.</small></h3>
+      <button class="btn copy">Copy</button>
+    </div>
+<pre>You are working in the JeremAI repo for Aether Wellness (aether-wellness).
+Use pnpm jeremai. Do not post an ad. Do not call RunPod, fal, or MiniMax. Clips in this build are practice clips.
+
+Run <span class="cmd">`pnpm jeremai generate --client aether-wellness --seconds 5 --backend runpod-h3 --resolution 768P`</span> with no confirm flag. It should stop. Report that stop. Do not pass <span class="cmd">`--confirm`</span>. Do not publish.</pre>
+    <div class="df"><span>Make the clip · unconfirmed</span><span class="mono">7 lines</span></div>
+  </aside>
+
+</div>
+
+</body>
+</html>
+<!-- form came from: the gate (a step that refuses until a human confirms) became the one warm, lock-outlined control in the middle of an otherwise cool grid, and the budget meter became the bar that sits at the top-right of every screen because spend is the thing the operator must always be able to read. -->

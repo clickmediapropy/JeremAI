@@ -3,6 +3,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { findProjectRoot } from "../lib/paths.ts";
+import { agentTurn, type AgentScreen } from "./agent.ts";
 import { createBrand } from "./create-brand.ts";
 import { fillStep, selectedModel } from "./fill.ts";
 import { clearKey, readEnvValue, readKeys, saveKey, saveModel } from "./keys.ts";
@@ -38,6 +39,7 @@ const FILES: Record<string, { file: string; type: string }> = {
   "/desk.css": { file: "desk.css", type: "text/css; charset=utf-8" },
   "/desk.js": { file: "desk.js", type: "text/javascript; charset=utf-8" },
   "/instructions.js": { file: "instructions.js", type: "text/javascript; charset=utf-8" },
+  "/agent-tools.js": { file: "agent-tools.js", type: "text/javascript; charset=utf-8" },
 };
 
 export interface DeskHandle {
@@ -142,6 +144,32 @@ export function startDesk(opts: {
       }
       res.writeHead(200, { "content-type": "application/json; charset=utf-8" });
       res.end(JSON.stringify(result.fill));
+      return;
+    }
+    if (req.method === "POST" && url.pathname === "/api/agent") {
+      const parsed = await readJson(req, res);
+      if (!parsed) return;
+      const body = parsed as { brand?: unknown; model?: unknown; messages?: unknown; screen?: unknown };
+      const models = readEnvValue(envPath, "OPENROUTER_API_KEY") ? await listVisionModels(fetchImpl).catch(() => []) : [];
+      const screen = body.screen && typeof body.screen === "object" ? (body.screen as AgentScreen) : undefined;
+      const result = await agentTurn({
+        brand: typeof body.brand === "string" ? body.brand : "",
+        model: typeof body.model === "string" ? body.model : "",
+        models,
+        messages: body.messages,
+        screen,
+        dataDir: opts.dataDir,
+        clientsRoot: opts.clientsRoot,
+        envPath,
+        fetchImpl,
+      });
+      if (!result.ok) {
+        res.writeHead(400, { "content-type": "application/json; charset=utf-8" });
+        res.end(JSON.stringify({ sentence: result.sentence }));
+        return;
+      }
+      res.writeHead(200, { "content-type": "application/json; charset=utf-8" });
+      res.end(JSON.stringify(result.reply));
       return;
     }
     if (req.method === "POST" && url.pathname === "/api/brands") {
